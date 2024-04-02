@@ -21,6 +21,7 @@ func main() {
     // Define your API routes
     r.HandleFunc("/api/login", loginHandler).Methods("POST")
     r.HandleFunc("/api/logout", logoutHandler).Methods("GET")
+	r.HandleFunc("/api/echo", logoutHandler).Methods("POST")
 
     http.Handle("/", r)
 
@@ -29,6 +30,18 @@ func main() {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+		// Check if the request method is POST
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+	
+		// Read the request body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusBadRequest)
+			return
+		}
     // Authenticate the user (check credentials, etc.)
     // For simplicity, let's assume the user is authenticated
     // Create a session and set a cookie
@@ -50,4 +63,24 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
     // Return a response
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
+}
+
+func echoHandler(w http.ResponseWriter, r *http.Request) {
+	// Check if the request method is POST
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// do nothing, succesfully
+
+		// Read the request body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusBadRequest)
+			return
+		}
+
+    // Return a response
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(body)
 }
