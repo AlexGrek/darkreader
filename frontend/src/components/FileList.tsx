@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { getFileList } from '../utils/api';
+import { Catalog, CatalogMap, getFileList } from '../utils/api';
 
 const FileList: React.FC = () => {
-  const [files, setFiles] = useState<string[]>([]);
+  const [files, setFiles] = useState<CatalogMap>({});
 
   useEffect(() => {
     const fetchFileList = async () => {
@@ -18,15 +18,25 @@ const FileList: React.FC = () => {
     fetchFileList();
   }, []);
 
+  const renderEntry = (key: string, catalog: Catalog) => {
+    return <div>
+      <Link to={`/text/${key}/${catalog.files[0]}`}>{catalog.prettyName}</Link>
+    </div>
+  }
+  
+  const renderEntries = () => {
+    let items: ReactNode[] = []
+    for (const [key, catalog] of Object.entries(files)) {
+      items.push(renderEntry(key, catalog))
+    }
+    return items
+  }
+
   return (
     <div>
-      <h2>File List</h2>
+      <h2>Catalog List</h2>
       <ul>
-        {files.map((file) => (
-          <li key={file}>
-            <Link to={`/text/${file}`}>{file}</Link>
-          </li>
-        ))}
+        {renderEntries()}
       </ul>
     </div>
   );

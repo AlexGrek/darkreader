@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
-	"time"
 )
 
 const ACCESS_READER = "reader"
@@ -20,13 +18,16 @@ type Password struct {
 	Password string `json:"password"`
 }
 
-func InitPasswd() {
-	rand.Seed(time.Now().UnixNano())
+func getPasswdFilePath() string {
 	filePath := os.Getenv("MASTER_PASSWORDS_FILE")
 	if filePath == "" {
 		filePath = "master_passwords.json"
 	}
+	return filePath
+}
 
+func InitPasswd() {
+	filePath := getPasswdFilePath()
 	// Check if the JSON file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		// If the file does not exist, generate random passwords and dump them into the file
@@ -101,12 +102,13 @@ func savePasswordsToFile(filePath string, passwords []Password) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filePath, data, 0644)
+	fmt.Println("Passwords: ", data)
+	return os.WriteFile(filePath, data, 0644)
 }
 
 // readPasswordsFromFile reads passwords from a JSON file
 func readPasswordsFromFile(filePath string) ([]Password, error) {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -115,4 +117,30 @@ func readPasswordsFromFile(filePath string) ([]Password, error) {
 		return nil, err
 	}
 	return passwords, nil
+}
+
+func GetAuthLevelForPasswd(pass string) (string, error) {
+	passwords, err := readPasswordsFromFile(getPasswdFilePath())
+	if err != nil {
+		return "", err
+	}
+	for _, password := range passwords {
+		if password.Password == pass {
+			return password.Level, nil
+		}
+	}
+	return "", nil // Password not found
+}
+
+func AuthLevelAsNumeric(level string) int {
+	if level == ACCESS_READER {
+		return 1
+	}
+	if level == ACCESS_CONTRIBUTOR {
+		return 10
+	}
+	if level == ACCESS_MASTER {
+		return 1000
+	}
+	return -1
 }

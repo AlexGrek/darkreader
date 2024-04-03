@@ -1,0 +1,18 @@
+gopls is the official Go language server developed by the Go team at Google. It provides language server functionality for Go code, enabling features like code completion, hover information, formatting, renaming, refactoring, and more in various code editors and IDEs.
+
+Some of the key features provided by gopls include:
+
+    Code Completion: gopls provides intelligent code completion suggestions based on the current context, imported packages, and type information.
+    Hover Information: When hovering over a symbol (variable, function, type, etc.), gopls displays documentation, type information, and other relevant details.
+    Go to Definition: Navigate directly to the definition of a symbol by using the "Go to Definition" functionality.
+    Find References: Find all references to a specific symbol across the codebase.
+    Code Formatting: Automatically format Go code according to the official Go coding style guidelines.
+    Refactoring: Perform various refactoring operations, such as renaming symbols, extracting functions or variables, and more.
+    Diagnostic Reporting: Report errors, warnings, and other diagnostic information in real-time as you type.
+    Workspace Symbol Search: Search for symbols (types, functions, variables, etc.) across the entire workspace.
+    Code Folding: Provide code folding capabilities for better overview and navigation within files.
+    Signature Help: Display parameter information and documentation for function calls as you type.
+
+gopls integrates with various code editors and IDEs, such as Visual Studio Code (with the Go extension), GoLand, Vim-go, Emacs, and others, providing a consistent and robust development experience across different platforms and environments.
+
+By using gopls, developers can benefit from improved productivity, code quality, and a more streamlined Go development workflow.

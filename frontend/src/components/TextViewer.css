@@ -1,0 +1,11 @@
+.story-text {
+    font-family: 'Storyteller', sans-serif;
+    font-size: 16pt;
+    padding: 0 2em;
+    text-align: justify;
+    
+}
+
+.story-text p {
+    text-indent: 1em;
+}

@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/text/:fileName" element={<TextPage />} />
+        <Route path="/text/:catalog/:fileName" element={<TextPage />} />
       </Routes>
     </Router>
   )
