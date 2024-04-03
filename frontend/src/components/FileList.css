@@ -1,6 +1,7 @@
 .file-list-entry {
     min-width: 22pt;
-    max-width: 90%;
+    max-width: 600pt;
+    width: 90%;
     border: 4px solid hsla(10, 4%, 31%, 0.699);
     border-radius: 4px;
     padding: 6pt;

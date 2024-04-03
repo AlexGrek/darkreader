@@ -35,6 +35,30 @@ export const getCatalog = async (catalog: string) => {
   }
 };
 
+export const sendPostWithPayload = async (path: string, payload: any) => {
+  try {
+    const response = await axios.post(`/api/${path}`, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true, // Allow sending and receiving cookies
+    });
+
+    if (response.status < 300 && response.status >= 200) {
+      // The server should have set the necessary cookies in the response headers
+      console.log('Post request successful');
+      return true;
+    } else {
+      console.error('Post request failed');
+      console.error(response)
+      return false;
+    }
+  } catch (error) {
+    console.error('Error during post request:', error);
+    return false;
+  }
+}
+
 export const getFileContentOr401 = async (catalog: string, fileName: string) => {
   try {
     const response = await fetch(`/api/text/${catalog}/${fileName}`);
@@ -45,6 +69,20 @@ export const getFileContentOr401 = async (catalog: string, fileName: string) => 
     return data;
   } catch (error) {
     console.error(`Error fetching file content for ${catalog}/${fileName}:`, error);
+    throw error;
+  }
+};
+
+export const getAccessLevelOrStatusCode = async () => {
+  try {
+    const response = await fetch(`/api/get_login_data`);
+    if (response.status != 200) {
+      return `${response.status}`
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching login data:`, error);
     throw error;
   }
 };

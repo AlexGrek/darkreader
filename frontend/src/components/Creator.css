@@ -1,0 +1,53 @@
+.creator-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.creator-body label {
+    display: block;
+}
+
+.creator-meta-input-field {
+    display: flex;
+    font-size: small;
+    color: rgba(148, 187, 219, 0.779);
+    background-color: rgba(9, 43, 73, 0.388);
+    padding: 10pt 18pt;
+    text-align: left;
+    margin: auto;
+}
+
+.creator-meta-input-field input {
+    display: block;
+    margin: auto;
+    width: 30em;
+    font-size: large;
+}
+
+.creator-text-edit-panel {
+    margin: 14pt auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.creator-text-edit-panel textarea {
+    width: 90%;
+    max-width: 90%;
+    resize: vertical;
+    min-height: 20em;
+    display: block;
+    margin: auto;
+}
+
+.creator-char-count {
+    font-size: x-small;
+    opacity: .6;
+}
+
+@media (max-width: 768px) {
+    .creator-meta-input-field input {
+        width: 95%;
+        margin: auto;
+    }
+}

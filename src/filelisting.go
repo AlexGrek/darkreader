@@ -179,24 +179,43 @@ func fileSize(path string) (int64, error) {
 	return fileInfo.Size(), nil
 }
 
+func AddFileToCatalog(catalogInfo AppendPayload) error {
+	rootPath := os.Getenv("TEXT_PATH")
+	if rootPath == "" {
+		rootPath = "demotexts"
+	}
+	name := ConvertIntoFileNameString(catalogInfo.Catalog)
+	catalogDir := filepath.Join(rootPath, ConvertIntoFileNameString(catalogInfo.Catalog))
+	if _, err := os.Stat(catalogDir); err != nil {
+		fmt.Println("Directory does not exist to append file to:", name)
+		return err;
+	}
+
+	_, catalog := GenerateCatalog(name, rootPath)
+
+	err := createFile(catalogDir, catalogInfo.File, catalogInfo.Text, len(catalog.Files))
+	if err != nil {
+		return err
+	}
+
+	return nil;
+}
+
 func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
 	rootPath := os.Getenv("TEXT_PATH")
 	if rootPath == "" {
 		rootPath = "demotexts"
 	}
-	catalogDir := filepath.Join(rootPath, catalogInfo.Catalog)
+	catalogDir := filepath.Join(rootPath, ConvertIntoFileNameString(catalogInfo.Catalog))
 	if _, err := os.Stat(catalogDir); os.IsNotExist(err) {
 		if err := os.Mkdir(catalogDir, 0755); err != nil {
 			return false, err
 		}
 	}
 
-	filePath := filepath.Join(catalogDir, catalogInfo.File)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		if err := os.WriteFile(filePath, []byte(catalogInfo.Text), 0644); err != nil {
-			fmt.Println("Error creating file")
-			return false, err
-		}
+	err := createFile(catalogDir, catalogInfo.File, catalogInfo.Text, 0)
+	if err != nil {
+		return false, err
 	}
 
 	metadata := Metadata{
@@ -213,4 +232,15 @@ func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func createFile(catalogDir string, file string, text string, existing int) error {
+	filePath := filepath.Join(catalogDir, MakeTextFileName(file, existing))
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		if err := os.WriteFile(filePath, []byte(text), 0644); err != nil {
+			fmt.Println("Error creating file", err.Error())
+			return err
+		}
+	}
+	return nil
 }

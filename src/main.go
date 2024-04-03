@@ -23,6 +23,7 @@ func main() {
 	// Define your API routes
 	r.HandleFunc("/api/login", loginHandler).Methods("POST")
 	r.HandleFunc("/api/logout", logoutHandler).Methods("GET")
+	r.HandleFunc("/api/get_login_data", getLoginData).Methods("GET")
 	r.HandleFunc("/api/echo", echoHandler).Methods("POST")
 	r.HandleFunc("/api/echo_reader", echoHandlerReader).Methods("POST")
 	r.HandleFunc("/api/echo_contributor", echoHandlerContributor).Methods("POST")
@@ -32,6 +33,7 @@ func main() {
 	r.HandleFunc("/api/catalogs", GetCatalogsHandler).Methods("GET")
 	r.HandleFunc("/api/catalog/{directory}", GetOneCatalogHandler).Methods("GET")
 	r.HandleFunc("/api/create", HandleCreate).Methods("POST")
+	r.HandleFunc("/api/append", HandleAppend).Methods("POST")
 
 	http.Handle("/", r)
 
@@ -62,6 +64,7 @@ func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel s
 	if !ok || AuthLevelAsNumeric(level) < AuthLevelAsNumeric(requiredAccessLevel) {
 		http.Error(w, "Higher permission level required", http.StatusForbidden)
 		fmt.Println("Error: not enough permissions, required:", requiredAccessLevel)
+		return false
 	}
     return true
 }
@@ -116,6 +119,30 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Return a response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
+}
+
+func getLoginData(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+    if err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error: unauthenticated request detected")
+        return
+    }
+
+    // Check if the user is authenticated
+    if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+	level, ok := session.Values["level"].(string);
+	if !ok || level == "" {
+		http.Error(w, "Unauthorized: no level data", http.StatusUnauthorized)
+		return
+	}
+
+	// Return a response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"authenticated": true, "level": level})
 }
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {

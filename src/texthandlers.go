@@ -66,6 +66,12 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 	w.Write(fileContents)
 }
 
+type AppendPayload struct {
+	Catalog string `json:"catalog"`
+	File    string `json:"file"`
+	Text    string `json:"text"`
+}
+
 type CreatePayload struct {
 	Catalog     string   `json:"catalog"`
 	File        string   `json:"file"`
@@ -84,10 +90,9 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !checkLoggedIn(w, r, ACCESS_CONTRIBUTOR) {
-        return
-    }
+		return
+	}
 
-	// Decode the JSON request body into a CatalogInfo struct
 	var catalogInfo CreatePayload
 	if err := json.Unmarshal(body, &catalogInfo); err != nil {
 		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
@@ -98,7 +103,7 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) {
 	// Create the file with the given file name inside the catalog directory
 	// Create and write tags to metadata.json in the catalog directory
 	_, err = CreateNewCatalogAndFile(catalogInfo)
-	if (err != nil) {
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
@@ -107,4 +112,32 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Catalog and file created successfully"))
 }
 
+func HandleAppend(w http.ResponseWriter, r *http.Request) {
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
 
+	if !checkLoggedIn(w, r, ACCESS_CONTRIBUTOR) {
+		return
+	}
+
+	var catalogInfo AppendPayload
+	if err := json.Unmarshal(body, &catalogInfo); err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Create the file with the given file name inside the catalog directory
+	err = AddFileToCatalog(catalogInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Catalog and file created successfully"))
+}

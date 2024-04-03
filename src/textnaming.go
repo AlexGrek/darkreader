@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -16,6 +17,12 @@ func ConvertIntoFileNameString(input string) string {
 	input = unsupportedRegex.ReplaceAllString(input, "")
 
 	return input
+}
+
+func MakeTextFileName(input string, countFilesAlreadyThere int) string {
+	number := fmt.Sprintf("%02d", countFilesAlreadyThere + 1)
+	name := ConvertIntoFileNameString(input)
+	return fmt.Sprintf("%s_%s.txt", number, name)
 }
 
 func ConvertIntoStoryNameString(input string) string {
