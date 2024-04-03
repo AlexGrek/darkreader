@@ -37,8 +37,16 @@ const TextPage: React.FC = () => {
   }, [])
 
   const renderMenu = () => {
+    const dynamic = renderMenuEntries();
+    const menuItems = [
+      <Link to={'/'}>{'<- Return'}</Link>,
+      dynamic]
+    return menuItems
+  }
+
+  const renderMenuEntries = () => {
     if (catalogData == null) {
-      return <p>"Loading..."</p>
+      return <p>Loading...</p>
     } else {
       return <ul>{catalogData.files.map((entry, i) => {
         return <li className={entry == fileName ? "sidebar-entry-chosen" : ""}><Link to={`/text/${catalog}/${entry}`} key={i}>{entry.replace("_", " ").replace(".txt", "")}</Link></li>
@@ -73,7 +81,6 @@ const TextPage: React.FC = () => {
     <div>
       <p>{errTxt}</p>
       <Sidebar menu={renderMenu()}>
-        <p>Displaying file "{fileName}"</p>
         <TextViewer fileName={fileName || ""} catalog={catalog || ''} nextPage={genNextPage()} prevPage={genPrevPage()}/>
       </Sidebar>
 

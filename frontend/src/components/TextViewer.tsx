@@ -58,7 +58,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   }
 
   return (
-    <div>
+    <div className='text-viewer-main'>
       <LoginPopup isOpen={authPopupVisible} onClose={loggedIn} />
       <div>
         <h2>{fileName}</h2>

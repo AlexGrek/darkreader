@@ -1,6 +1,7 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Catalog, CatalogMap, getFileList } from '../utils/api';
+import './FileList.css'
 
 const FileList: React.FC = () => {
   const [files, setFiles] = useState<CatalogMap>({});
@@ -19,11 +20,17 @@ const FileList: React.FC = () => {
   }, []);
 
   const renderEntry = (key: string, catalog: Catalog) => {
-    return <div>
+    return <div className='file-list-entry'>
       <Link to={`/text/${key}/${catalog.files[0]}`}>{catalog.prettyName}</Link>
+      <p className='file-list-entry-descr'>{catalog.description}</p>
+      <div className='file-list-entry-bottom'>
+        <p className='file-list-tags'>Tags: {catalog.tags}</p>
+        <p className='file-list-pages'>Pages: {catalog.pages}</p>
+        <p className='file-list-chapters'>Chapters: {catalog.files.length}</p>
+      </div>
     </div>
   }
-  
+
   const renderEntries = () => {
     let items: ReactNode[] = []
     for (const [key, catalog] of Object.entries(files)) {
@@ -35,9 +42,9 @@ const FileList: React.FC = () => {
   return (
     <div>
       <h2>Catalog List</h2>
-      <ul>
+      <div>
         {renderEntries()}
-      </ul>
+      </div>
     </div>
   );
 };

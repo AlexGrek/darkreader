@@ -1,9 +1,26 @@
 export function renderText(text: string) {
     const lines = text.split('\n');
-    return lines.filter((s) => !isEmptyOrWhitespace(s)).map((line, index) => (
-        <p key={index}>{line}</p>
-    ))
+    return lines.filter((s) => !isEmptyOrWhitespace(s)).map((line, index) => {
+        let processed = processLine(line)
+        return <p key={index}>{processed}</p>
+})
 }
+
+function processLine(str: string) {
+    let processed = str;
+    if (processed.startsWith("- ")) {
+        processed = replaceFirstTwoChars(processed, "— ")
+    }
+    return processed
+}
+
+function replaceFirstTwoChars(str: string, replacement: string): string {
+    if (str.length < 2) {
+      return replacement;
+    }
+    
+    return replacement + str.slice(2);
+  }
 
 function isEmptyOrWhitespace(str: string) {
     // First, we trim the string to remove leading and trailing whitespace characters

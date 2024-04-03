@@ -1,11 +1,24 @@
 .story-text {
     font-family: 'Storyteller', sans-serif;
-    font-size: 16pt;
-    padding: 0 2em;
+    font-size: 15pt;
+    padding: 0 1em;
+    max-width: 50em;
     text-align: justify;
-    
+    line-height: 1.28em;
 }
 
 .story-text p {
     text-indent: 1em;
+    margin-bottom: 4pt;
+    margin-top: 4pt;
+}
+
+footer {
+    padding: 2em;
+}
+
+@media (max-width: 768px) {
+    .story-text {
+        padding: 0 1pt;
+    }
 }
