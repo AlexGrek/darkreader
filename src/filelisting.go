@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,7 +13,14 @@ type Catalog struct {
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
 	PrettyName  string   `json:"prettyName"`
-	Pages int64          `json:"pages"`
+	Pages       int64    `json:"pages"`
+	Protected   bool     `json:"protected"`
+}
+
+type Metadata struct {
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Protected   bool     `json:"protected"`
 }
 
 func GenerateHierarchy(rootPath string) (map[string]Catalog, error) {
@@ -36,7 +45,6 @@ func GenerateHierarchy(rootPath string) (map[string]Catalog, error) {
 }
 
 func GenerateCatalog(catalogName string, rootPath string) (string, Catalog) {
-	
 	catalog := Catalog{
 		Files:       []string{},
 		Tags:        []string{},
@@ -56,16 +64,69 @@ func GenerateCatalog(catalogName string, rootPath string) (string, Catalog) {
 	}
 
 	for _, file := range files {
-		if !file.IsDir() {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".txt" {
 			catalog.Files = append(catalog.Files, file.Name())
 		}
 	}
 
+	// Check if metadata.json exists, if not create it
+	metadataFilePath := filepath.Join(rootPath, catalogName, "metadata.json")
+	if _, err := os.Stat(metadataFilePath); os.IsNotExist(err) {
+		if err := createMetadataFile(metadataFilePath, &Metadata{
+			Tags:        make([]string, 0),
+			Description: "",
+			Protected: true,
+		}); err != nil {
+			log.Println(err)
+		}
+	}
+
+	meta, err := readMetadataFile(metadataFilePath)
+	if err != nil {
+		log.Println(err)
+	} else {
+		catalog.Description = meta.Description
+		catalog.Tags = meta.Tags
+		catalog.Protected = meta.Protected
+	}
+
 	size, err := calculateTotalTxtFileSize(filepath.Join(rootPath, catalogName))
 	if err == nil {
-		catalog.Pages = size / 1500
+		catalog.Pages = size / 2000
 	}
 	return catalogName, catalog
+}
+
+func readMetadataFile(filePath string) (Metadata, error) {
+	data := Metadata{}
+	file, err := os.Open(filePath)
+	if err != nil {
+		return data, err
+	}
+	defer file.Close()
+	
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&data); err != nil {
+		return data, err
+	}
+	return data, nil
+}
+
+func createMetadataFile(filePath string, data *Metadata) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(data)
+	if err != nil {
+		return err
+	}
+
+	log.Println("metadata.json created successfully in", filePath)
+	return nil
 }
 
 func TextHierarchy() map[string]Catalog {
@@ -80,7 +141,7 @@ func TextHierarchy() map[string]Catalog {
 	return hierarchy
 }
 
-func TextHierarchyOneDir(directory string) (string,Catalog) {
+func TextHierarchyOneDir(directory string) (string, Catalog) {
 	rootPath := os.Getenv("TEXT_PATH")
 	if rootPath == "" {
 		rootPath = "demotexts"
@@ -90,30 +151,66 @@ func TextHierarchyOneDir(directory string) (string,Catalog) {
 }
 
 func calculateTotalTxtFileSize(directory string) (int64, error) {
-    var totalSize int64
-    err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-        if err != nil {
-            return err
-        }
-        if !info.IsDir() && filepath.Ext(info.Name()) == ".txt" {
-            size, err := fileSize(path)
-            if err != nil {
-                return err
-            }
-            totalSize += size
-        }
-        return nil
-    })
-    if err != nil {
-        return 0, err
-    }
-    return totalSize, nil
+	var totalSize int64
+	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && filepath.Ext(info.Name()) == ".txt" {
+			size, err := fileSize(path)
+			if err != nil {
+				return err
+			}
+			totalSize += size
+		}
+		return nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	return totalSize, nil
 }
 
 func fileSize(path string) (int64, error) {
-    fileInfo, err := os.Stat(path)
-    if err != nil {
-        return 0, err
-    }
-    return fileInfo.Size(), nil
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return fileInfo.Size(), nil
+}
+
+func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
+	rootPath := os.Getenv("TEXT_PATH")
+	if rootPath == "" {
+		rootPath = "demotexts"
+	}
+	catalogDir := filepath.Join(rootPath, catalogInfo.Catalog)
+	if _, err := os.Stat(catalogDir); os.IsNotExist(err) {
+		if err := os.Mkdir(catalogDir, 0755); err != nil {
+			return false, err
+		}
+	}
+
+	filePath := filepath.Join(catalogDir, catalogInfo.File)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		if err := os.WriteFile(filePath, []byte(catalogInfo.Text), 0644); err != nil {
+			fmt.Println("Error creating file")
+			return false, err
+		}
+	}
+
+	metadata := Metadata{
+		Tags:        catalogInfo.Tags,
+		Description: catalogInfo.Description,
+		Protected: catalogInfo.Protected,
+	}
+	metadataFilePath := filepath.Join(catalogDir, "metadata.json")
+	metadataJSON, err := json.MarshalIndent(metadata, "", "    ")
+	if err != nil {
+		return false, err
+	}
+	if err := os.WriteFile(metadataFilePath, metadataJSON, 0644); err != nil {
+		return false, err
+	}
+	return true, nil
 }

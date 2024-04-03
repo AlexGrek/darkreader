@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './LoginPopup.css'
 import { login } from '../utils/api';
+import { Link } from 'react-router-dom';
+import { HiLockClosed } from "react-icons/hi2";
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -23,17 +25,18 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ isOpen, onClose }) => {
   return isOpen ? (
     <div className="popup-overlay">
       <div className="popup-container">
-        <h2>Edit Password</h2>
+        <h2>Protected text</h2>
+        <p><HiLockClosed /> Please enter password to read</p>
         <form onSubmit={handleSubmit}>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter new password"
+            placeholder="password"
           />
-          <button type="submit">Submit</button>
+          <button type="submit">Login</button>
         </form>
-        <button onClick={onClose}>Cancel</button>
+        <Link to={`/`} onClick={onClose}>Cancel</Link>
       </div>
     </div>
   ) : null;

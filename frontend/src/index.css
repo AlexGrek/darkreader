@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #222222;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -70,4 +70,20 @@ button:focus-visible {
   src: url('/fonts/LTRemark-Regular.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'MantraCinta';
+  src: url('/fonts/MantraCinta.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.logo-top-image {
+  max-height: 250pt;
+  max-width: 70%;
+}
+
+.header-text {
+  font-family: 'MantraCinta';
 }

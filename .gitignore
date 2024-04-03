@@ -22,3 +22,5 @@ go.work
 
 # Default passwords file
 master_passwords.json
+
+/secret*

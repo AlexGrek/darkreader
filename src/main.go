@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -32,6 +31,7 @@ func main() {
 	// file-related handlers
 	r.HandleFunc("/api/catalogs", GetCatalogsHandler).Methods("GET")
 	r.HandleFunc("/api/catalog/{directory}", GetOneCatalogHandler).Methods("GET")
+	r.HandleFunc("/api/create", HandleCreate).Methods("POST")
 
 	http.Handle("/", r)
 
@@ -127,7 +127,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 	// do nothing, succesfully
 
 	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
@@ -151,7 +151,7 @@ func echoHandlerContributor(w http.ResponseWriter, r *http.Request) {
     }
 
 	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
@@ -175,7 +175,7 @@ func echoHandlerReader(w http.ResponseWriter, r *http.Request) {
     }
 
 	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return

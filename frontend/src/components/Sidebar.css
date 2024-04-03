@@ -21,7 +21,7 @@
   width: 20px;
   height: 3px;
   margin: 5px auto;
-  background-color: #fff;
+  background-color: #ffffff8d;
   transition: all 0.3s ease-in-out;
 }
 
@@ -102,4 +102,16 @@
 .sidebar-entry-chosen {
   opacity: .5;
   font-weight: bold;
+}
+
+.sidebar-return-button {
+  font-size: large;
+  
+  padding: 5pt 8pt;
+  border-radius: 3pt;
+  text-align: center;
+}
+
+.sidebar-return-button:hover {
+  background-color: rgba(14, 28, 41, 0.289);
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -19,7 +20,7 @@ func GetOneCatalogHandler(w http.ResponseWriter, r *http.Request) {
 	// Return a response
 	vars := mux.Vars(r)
 	directory := vars["directory"]
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	name, catalog := TextHierarchyOneDir(directory)
 	json.NewEncoder(w).Encode(map[string]interface{}{"path": name, "catalog": catalog})
@@ -33,12 +34,6 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is authenticated
-	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	// Extract directory and filename from the URL path
 	vars := mux.Vars(r)
 	directory := vars["directory"]
@@ -48,6 +43,15 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 		rootPath = "demotexts"
 	}
 	filePath := fmt.Sprintf("%s/%s/%s", rootPath, directory, filename)
+
+	_, catalog := TextHierarchyOneDir(directory)
+	if catalog.Protected {
+		// Check if the user is authenticated
+		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+	}
 
 	// Read the contents of the text file
 	fileContents, err := os.ReadFile(filePath)
@@ -61,3 +65,46 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(fileContents)
 }
+
+type CreatePayload struct {
+	Catalog     string   `json:"catalog"`
+	File        string   `json:"file"`
+	Text        string   `json:"text"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Protected   bool     `json:"protected"`
+}
+
+func HandleCreate(w http.ResponseWriter, r *http.Request) {
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	if !checkLoggedIn(w, r, ACCESS_CONTRIBUTOR) {
+        return
+    }
+
+	// Decode the JSON request body into a CatalogInfo struct
+	var catalogInfo CreatePayload
+	if err := json.Unmarshal(body, &catalogInfo); err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Create the directory for the catalog if it doesn't exist
+	// Create the file with the given file name inside the catalog directory
+	// Create and write tags to metadata.json in the catalog directory
+	_, err = CreateNewCatalogAndFile(catalogInfo)
+	if (err != nil) {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Catalog and file created successfully"))
+}
+
+

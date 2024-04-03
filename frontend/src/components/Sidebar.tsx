@@ -1,5 +1,6 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useRef, useEffect } from 'react';
 import './Sidebar.css';
+import { useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   children: ReactNode;
@@ -9,6 +10,15 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ children, menu }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const componentRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (componentRef.current) {
+      componentRef.current.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
+
 
   return (
     <div className="app-container">
@@ -25,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, menu }) => {
           {menu}
         </div>
       </div>
-      <div className="content-container">{children}</div>
+      <div ref={componentRef} className="content-container">{children}</div>
     </div>
   );
 };

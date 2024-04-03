@@ -5,6 +5,8 @@ import TextViewer from '../components/TextViewer';
 import Sidebar from './Sidebar';
 import { Catalog, getCatalog } from '../utils/api';
 import { Link } from 'react-router-dom';
+import { RiHome2Line } from "react-icons/ri";
+import { toChapterName } from '../utils/filenames';
 
 const TextPage: React.FC = () => {
   const { fileName } = useParams<{ fileName: string }>();
@@ -39,7 +41,7 @@ const TextPage: React.FC = () => {
   const renderMenu = () => {
     const dynamic = renderMenuEntries();
     const menuItems = [
-      <Link to={'/'}>{'<- Return'}</Link>,
+      <Link className='sidebar-return-button' to={'/'}><RiHome2Line /> Home</Link>,
       dynamic]
     return menuItems
   }
@@ -49,7 +51,7 @@ const TextPage: React.FC = () => {
       return <p>Loading...</p>
     } else {
       return <ul>{catalogData.files.map((entry, i) => {
-        return <li className={entry == fileName ? "sidebar-entry-chosen" : ""}><Link to={`/text/${catalog}/${entry}`} key={i}>{entry.replace("_", " ").replace(".txt", "")}</Link></li>
+        return <li className={entry == fileName ? "sidebar-entry-chosen" : ""}><Link to={`/text/${catalog}/${entry}`} key={i}>{toChapterName(entry)}</Link></li>
       })}
       </ul>
     }

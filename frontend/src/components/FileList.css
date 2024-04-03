@@ -35,3 +35,28 @@
       transform: translateY(0) rotateX(0);
     }
   }
+
+.file-entry-lock {
+  margin-left: 4pt;
+  font-size: small;
+  opacity: .8;
+}
+
+.file-list-entry-tag {
+  display: inline-block;
+  margin-right: 3pt;
+  padding: 1pt 4pt;
+  border-radius: 2pt 2pt;
+  background-color: rgba(102, 99, 99, 0.281);
+}
+
+.file-list-entry-metedata {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.file-list-entry-metedata p {
+  margin: 2pt 6pt;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}

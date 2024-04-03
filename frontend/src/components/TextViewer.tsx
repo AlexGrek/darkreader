@@ -4,6 +4,8 @@ import LoginPopup from './LoginPopup';
 import { Link } from 'react-router-dom';
 import './TextViewer.css'
 import { renderText } from '../utils/renderText';
+import { GrNext, GrPrevious } from "react-icons/gr";
+import { toChapterName } from '../utils/filenames';
 
 interface TextViewerProps {
   fileName: string;
@@ -44,7 +46,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   const renderTop = () => {
     if (prevPage) {
       const entry = prevPage;
-      return <Link to={`/text/${catalog}/${entry}`}>{entry.replace("_", " ").replace(".txt", "")}</Link>
+      return <span><GrPrevious /><Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></span>
     }
     return null;
   }
@@ -52,7 +54,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   const renderBottom = () => {
     if (nextPage) {
       const entry = nextPage;
-      return <footer className='footer-text'>Next: <Link to={`/text/${catalog}/${entry}`}>{entry.replace("_", " ").replace(".txt", "")}</Link></footer>
+      return <footer className='footer-text'><GrNext /> <Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></footer>
     }
     return null;
   }
@@ -61,7 +63,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
     <div className='text-viewer-main'>
       <LoginPopup isOpen={authPopupVisible} onClose={loggedIn} />
       <div>
-        <h2>{fileName}</h2>
+        <h2>{toChapterName(fileName)}</h2>
         {renderTop()}
         <article className='story-text'>{renderText(fileContent)}</article>
         {renderBottom()}
