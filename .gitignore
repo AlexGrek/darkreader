@@ -24,3 +24,6 @@ go.work
 master_passwords.json
 
 /secret*
+/.fake
+*.lock
+/build

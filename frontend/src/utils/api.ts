@@ -1,6 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
-
-const API_BASE_URL = 'api';
+import axios from 'axios';
 
 export interface Catalog {
   files: string[];

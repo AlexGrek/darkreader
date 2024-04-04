@@ -15,3 +15,10 @@ If you want to use `secret` as your text directory, and you are on PowerShell li
 Build binary:
 
 `go build ./src`
+
+## Use FAKE to build release
+
+1. Install dotnet 6 SDK (**not the latest**)
+2. Install fake: `dotnet tool install fake-cli -g`
+3. Run fake: `fake run .\fakefile.fsx`
+
