@@ -1,6 +1,8 @@
 # darkreader
 
-Simple SPA server for hosting text stories (in .txt files) and managing access using random passwords (no login). 
+![logo](frontend/public/logo_small.jpg)
+
+Simple SPA server for hosting text stories (in .txt files) and managing access using random passwords (no login).
 
 ## Development
 
