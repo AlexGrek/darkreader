@@ -27,3 +27,4 @@ master_passwords.json
 /.fake
 *.lock
 /build
+/release.zip

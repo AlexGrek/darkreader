@@ -1,10 +1,17 @@
 #r "paket:
 nuget Fake.Core.Target //"
+#r "paket:
+nuget Fake.IO.Zip //"
+#r "paket:
+nuget Fake.IO.Globbing //"
 #load "./.fake/fakefile.fsx/intellisense.fsx"
 
 open Fake.Core
 open Fake.IO
+open Fake.IO.Globbing
+open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
+open Fake.IO.FileSystemOperators
 
 let build_dir = "build"
 let front_dir = "frontend"
@@ -12,9 +19,12 @@ let front_dir = "frontend"
 let front_dist = front_dir + "/dist"
 let build_static = build_dir + "/static"
 
+let release_zip = "release.zip"
+
 Target.create "Clean" (fun p ->
     Trace.trace " --- Cleaning stuff --- "
     Shell.rm_rf build_dir
+    Shell.rm_rf release_zip
 )
 
 // Default target
@@ -52,6 +62,8 @@ Target.create "PackageDemoAssets" (fun _ ->
 
 Target.create "PackageAll" (fun _ ->
   printfn("Packaging...")
+  let pattern = !! (build_dir + "/**")
+  Zip.zip  build_dir release_zip pattern |> ignore
 )
 
 "Clean"
