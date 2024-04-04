@@ -60,6 +60,12 @@ Target.create "PackageDemoAssets" (fun _ ->
   Shell.cp_r "demotexts" (build_dir + "/demotexts")
 )
 
+Target.create "PackageDistFiles" (fun _ ->
+  let files = !! "dist/**"
+  for file in files do
+    Shell.cp_r file build_dir
+)
+
 Target.create "PackageAll" (fun _ ->
   printfn("Packaging...")
   let pattern = !! (build_dir + "/**")
@@ -71,6 +77,7 @@ Target.create "PackageAll" (fun _ ->
     ==> "PackageFront"
     ==> "BuildBack"
     ==> "PackageDemoAssets"
+    ==> "PackageDistFiles"
     ==> "PackageAll"
 
 // start build

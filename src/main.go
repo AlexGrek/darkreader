@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
+	"os/user"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -12,12 +15,27 @@ import (
 
 var store = sessions.NewCookieStore([]byte("secret"))
 
+func printInitText() {
+	currentUser, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	fmt.Println("Current OS user Username", currentUser.Username)
+	fmt.Println("Current OS user Name", currentUser.Name)
+	fmt.Println("Current OS user uid", currentUser.Uid)
+
+	rootPath := os.Getenv("TEXT_PATH")
+	fmt.Println("TEXT_PATH env:", rootPath)
+	pwdpath := os.Getenv("MASTER_PASSWORDS_FILE")
+	fmt.Println("MASTER_PASSWORDS_FILE env:", pwdpath)
+}
+
 func main() {
+	printInitText()
 	InitPasswd()
 
 	r := mux.NewRouter()
-
-	
 
 	// Define your API routes
 	r.HandleFunc("/api/login", loginHandler).Methods("POST")
@@ -49,26 +67,26 @@ type LoginRequestBody struct {
 
 func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel string) bool {
 	fmt.Println("Protected request processing... (checking auth)")
-    session, err := store.Get(r, "session-name")
-    if err != nil {
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error: unauthenticated request detected")
-        return false
-    }
+		return false
+	}
 
-    // Check if the user is authenticated
-    if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return false
-    }
-	level, ok := session.Values["level"].(string);
+	// Check if the user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+	level, ok := session.Values["level"].(string)
 	fmt.Println("Permission level: ", level)
 	if !ok || AuthLevelAsNumeric(level) < AuthLevelAsNumeric(requiredAccessLevel) {
 		http.Error(w, "Higher permission level required", http.StatusForbidden)
 		fmt.Println("Error: not enough permissions, required:", requiredAccessLevel)
 		return false
 	}
-    return true
+	return true
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,21 +109,21 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	level, err := GetAuthLevelForPasswd(requestBody.Password)
-    if err != nil {
-        http.Error(w, "Server error", http.StatusInternalServerError)
-        return
-    }
-    if level == "" {
-        // wrong password
-        http.Error(w, "Wrong password", http.StatusForbidden)
-        return
-    }
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+	if level == "" {
+		// wrong password
+		http.Error(w, "Wrong password", http.StatusForbidden)
+		return
+	}
 	session, _ := store.Get(r, "session-name")
 	session.Values["authenticated"] = true
 	session.Values["level"] = level
-		session.Save(r, w)
+	session.Save(r, w)
 
-    fmt.Println("Logged in with password", requestBody.Password, "and level", level)
+	fmt.Println("Logged in with password", requestBody.Password, "and level", level)
 
 	// Return a response
 	w.Header().Set("Content-Type", "application/json")
@@ -125,18 +143,18 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func getLoginData(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "session-name")
-    if err != nil {
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error: unauthenticated request detected")
-        return
-    }
+		return
+	}
 
-    // Check if the user is authenticated
-    if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return
-    }
-	level, ok := session.Values["level"].(string);
+	// Check if the user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	level, ok := session.Values["level"].(string)
 	if !ok || level == "" {
 		http.Error(w, "Unauthorized: no level data", http.StatusUnauthorized)
 		return
@@ -175,9 +193,9 @@ func echoHandlerContributor(w http.ResponseWriter, r *http.Request) {
 	}
 	// do nothing, succesfully
 
-    if !checkLoggedIn(w, r, ACCESS_CONTRIBUTOR) {
-        return
-    }
+	if !checkLoggedIn(w, r, ACCESS_CONTRIBUTOR) {
+		return
+	}
 
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
@@ -199,9 +217,9 @@ func echoHandlerReader(w http.ResponseWriter, r *http.Request) {
 	}
 	// do nothing, succesfully
 
-    if !checkLoggedIn(w, r, ACCESS_READER) {
-        return
-    }
+	if !checkLoggedIn(w, r, ACCESS_READER) {
+		return
+	}
 
 	// Read the request body
 	body, err := io.ReadAll(r.Body)

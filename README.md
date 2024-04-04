@@ -23,3 +23,31 @@ Build binary:
 3. Run fake: `fake run .\fakefile.fsx`
 
 To run fake build on linux, targets for go cross-compilation should be changed
+
+# Run on linux
+
+You can use Docker and Make to run it on your server on port 6969 (customizable in makefile)
+
+1. Unzip release package and fix permission issues
+
+```
+unzip release.zip
+```
+
+2. Build docker image
+
+```
+make docker-build
+```
+
+3. Run docker image
+
+```
+make docker-run
+```
+
+4. Get the generated passwords, that are stored inside container
+
+```
+docker logs darkreader
+```

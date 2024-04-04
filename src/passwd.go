@@ -75,6 +75,11 @@ func generatePasswords(count int) []Password {
 		Password: generateRandomPassword(12),
 	}
 	passwords = append(passwords, masterPassword)
+	// Print the read passwords
+	fmt.Println("Just generated passwords:")
+	for _, password := range passwords {
+		fmt.Println(password)
+	}
 	return passwords
 }
 
@@ -102,7 +107,6 @@ func savePasswordsToFile(filePath string, passwords []Password) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Passwords: ", data)
 	return os.WriteFile(filePath, data, 0644)
 }
 
