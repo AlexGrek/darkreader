@@ -17,8 +17,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Serve the React SPA and static files
-	r.PathPrefix("/static").Handler(http.FileServer(http.Dir("./static")))
+	
 
 	// Define your API routes
 	r.HandleFunc("/api/login", loginHandler).Methods("POST")
@@ -35,10 +34,13 @@ func main() {
 	r.HandleFunc("/api/create", HandleCreate).Methods("POST")
 	r.HandleFunc("/api/append", HandleAppend).Methods("POST")
 
+	// Serve the React SPA and static files
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+
 	http.Handle("/", r)
 
 	// Start the server
-	http.ListenAndServe(":6969", nil)
+	http.ListenAndServe("0.0.0.0:6969", nil)
 }
 
 type LoginRequestBody struct {

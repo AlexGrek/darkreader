@@ -46,10 +46,20 @@ Target.create "BuildBack" (fun _ ->
     failwith("error")
 )
 
+Target.create "PackageDemoAssets" (fun _ ->
+  Shell.cp_r "demotexts" (build_dir + "/demotexts")
+)
+
+Target.create "PackageAll" (fun _ ->
+  printfn("Packaging...")
+)
+
 "Clean"
     ==> "BuildFront"
     ==> "PackageFront"
     ==> "BuildBack"
+    ==> "PackageDemoAssets"
+    ==> "PackageAll"
 
 // start build
-Target.runOrDefault "BuildBack"
+Target.runOrDefault "PackageAll"
