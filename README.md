@@ -4,7 +4,9 @@ Simple SPA server for hosting text stories (in .txt files) and managing access u
 
 ## Development
 
-Run:
+### backend
+
+Run backend:
 
 `go run ./src`
 
@@ -16,6 +18,21 @@ Build binary:
 
 `go build ./src`
 
+### frontend
+
+App uses Vite + React + Typescript for frontend
+
+Run Vite dev server:
+
+```sh
+cd frontend
+npm run dev
+```
+
+Frontend server uses proxy for API requests, so backend should be running and listening on port `6969`
+
+# Build
+
 ## Use FAKE to build release (on Windows)
 
 1. Install dotnet 6 SDK (**not the latest**)
@@ -24,7 +41,11 @@ Build binary:
 
 To run fake build on linux, targets for go cross-compilation should be changed
 
-# Run on linux
+# Deploy
+
+Currently I support only local deployment on any OS and Docker deployment on linux
+
+## Run on linux
 
 You can use Docker and Make to run it on your server on port 6969 (customizable in makefile)
 
