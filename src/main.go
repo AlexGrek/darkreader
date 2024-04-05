@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/user"
+	"path"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -29,11 +30,18 @@ func printInitText() {
 	fmt.Println("TEXT_PATH env:", rootPath)
 	pwdpath := os.Getenv("MASTER_PASSWORDS_FILE")
 	fmt.Println("MASTER_PASSWORDS_FILE env:", pwdpath)
+	static := os.Getenv("SERVER_STATIC")
+	fmt.Println("SERVER_STATIC env:", static)
 }
 
 func main() {
 	printInitText()
 	InitPasswd()
+
+	static := os.Getenv("SERVER_STATIC")
+	if static == "" {
+		static = "/static"
+	}
 
 	r := mux.NewRouter()
 
@@ -52,8 +60,21 @@ func main() {
 	r.HandleFunc("/api/create", HandleCreate).Methods("POST")
 	r.HandleFunc("/api/append", HandleAppend).Methods("POST")
 
-	// Serve the React SPA and static files
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+	// Serve static files and index.html from the same directory
+	r.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request is for a static file
+		if _, err := os.Stat(path.Join(static, r.URL.Path)); err == nil {
+			// Serve the static file
+			fmt.Println("DEBUG: serving static: ", r.URL.Path)
+			http.FileServer(http.Dir(static)).ServeHTTP(w, r)
+			return
+		}
+
+		fmt.Println("DEBUG: serving index: ", r.URL.Path)
+
+		// Serve the React app's index.html file
+		http.ServeFile(w, r, path.Join(static, "index.html"))
+	}))
 
 	http.Handle("/", r)
 

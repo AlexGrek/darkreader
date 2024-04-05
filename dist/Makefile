@@ -18,3 +18,14 @@ docker-kill:
 .PHONY: re-docker
 re-docker: docker-kill docker-build docker-run
 	sleep 3s && docker logs darkreader
+
+unpack:
+	unzip -o release.zip
+
+clean:
+	@rm -vrf Dockerfile server server.exe static
+	
+update: clean unpack re-docker
+
+
+.PHONY: unpack update clean
