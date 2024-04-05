@@ -87,7 +87,6 @@ type LoginRequestBody struct {
 }
 
 func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel string) bool {
-	fmt.Println("Protected request processing... (checking auth)")
 	s, err := store.Get(r, "session-name")
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

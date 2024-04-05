@@ -30,7 +30,10 @@
   background-color: #262626b4;
   color: #ffffffce;
   padding: 20px;
-  height: 100%;
+  position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
   transition: transform 0.3s ease-in-out;
   backdrop-filter: blur(7px);
 }
@@ -66,10 +69,8 @@
 }
 
 .content-container {
-  height: 100%;
   width: 100%;
-  overflow-y: auto;
-  flex: 1;
+  margin-left: 270px;
   padding: 20px;
 }
 
@@ -80,6 +81,7 @@
 
   .content-container {
     padding: 0 10pt 0 0px;
+    margin-left: 0;
   }
 
   .sidebar-close {
