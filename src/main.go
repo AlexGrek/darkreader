@@ -10,6 +10,7 @@ import (
 	"os/user"
 	"path"
 
+	. "github.com/AlexGrek/darkreader/src/session"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
@@ -32,6 +33,8 @@ func printInitText() {
 	fmt.Println("MASTER_PASSWORDS_FILE env:", pwdpath)
 	static := os.Getenv("SERVER_STATIC")
 	fmt.Println("SERVER_STATIC env:", static)
+	session := os.Getenv("SESSION_FILE")
+	fmt.Println("SESSION_FILE env:", session)
 }
 
 func main() {
@@ -65,12 +68,9 @@ func main() {
 		// Check if the request is for a static file
 		if _, err := os.Stat(path.Join(static, r.URL.Path)); err == nil {
 			// Serve the static file
-			fmt.Println("DEBUG: serving static: ", r.URL.Path)
 			http.FileServer(http.Dir(static)).ServeHTTP(w, r)
 			return
 		}
-
-		fmt.Println("DEBUG: serving index: ", r.URL.Path)
 
 		// Serve the React app's index.html file
 		http.ServeFile(w, r, path.Join(static, "index.html"))
@@ -88,25 +88,50 @@ type LoginRequestBody struct {
 
 func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel string) bool {
 	fmt.Println("Protected request processing... (checking auth)")
-	session, err := store.Get(r, "session-name")
+	s, err := store.Get(r, "session-name")
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error: unauthenticated request detected")
+		fmt.Println(err)
 		return false
 	}
 
 	// Check if the user is authenticated
-	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return false
 	}
-	level, ok := session.Values["level"].(string)
+	level, ok := s.Values["level"].(string)
+	if !ok {
+		http.Error(w, "Session data incomplete (level)", http.StatusBadRequest)
+		return false
+	}
+	secret, ok := s.Values["secret"].(string)
+	if !ok {
+		http.Error(w, "Session data incomplete (secret)", http.StatusBadRequest)
+		return false
+	}
 	fmt.Println("Permission level: ", level)
-	if !ok || AuthLevelAsNumeric(level) < AuthLevelAsNumeric(requiredAccessLevel) {
+
+	if AuthLevelAsNumeric(level) < AuthLevelAsNumeric(requiredAccessLevel) {
 		http.Error(w, "Higher permission level required", http.StatusForbidden)
 		fmt.Println("Error: not enough permissions, required:", requiredAccessLevel)
 		return false
 	}
+
+	access, err := ValidateAccess(secret, level)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println(err)
+		return false
+	}
+
+	if !access {
+		http.Error(w, "Session not found", http.StatusUnauthorized)
+		fmt.Println("Intruder detected with unknown secret:", secret)
+		return false
+	}
+
 	return true
 }
 
@@ -132,6 +157,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	level, err := GetAuthLevelForPasswd(requestBody.Password)
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 	if level == "" {
@@ -139,10 +165,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong password", http.StatusForbidden)
 		return
 	}
-	session, _ := store.Get(r, "session-name")
-	session.Values["authenticated"] = true
-	session.Values["level"] = level
-	session.Save(r, w)
+	s, _ := store.Get(r, "session-name")
+	s.Values["authenticated"] = true
+	s.Values["level"] = level
+	secret, err := CreateSession(requestBody.Password, level)
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		fmt.Println("Cannot create session:", err)
+		return
+	}
+	s.Values["secret"] = secret
+	s.Save(r, w)
 
 	fmt.Println("Logged in with password", requestBody.Password, "and level", level)
 
@@ -153,9 +186,22 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clear the session (logout)
-	session, _ := store.Get(r, "session-name")
-	session.Values["authenticated"] = false
-	session.Save(r, w)
+	s, _ := store.Get(r, "session-name")
+	s.Values["authenticated"] = false
+	s.Save(r, w)
+
+	secret, ok := s.Values["secret"].(string)
+	if !ok {
+		http.Error(w, "Session data incomplete (secret)", http.StatusBadRequest)
+		return
+	}
+
+	err := DeleteSessionBySecret(secret)
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		fmt.Println("Cannot delete session:", err)
+		return
+	}
 
 	// Return a response
 	w.Header().Set("Content-Type", "application/json")
@@ -167,6 +213,7 @@ func getLoginData(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error: unauthenticated request detected")
+		fmt.Println(err)
 		return
 	}
 
@@ -178,6 +225,24 @@ func getLoginData(w http.ResponseWriter, r *http.Request) {
 	level, ok := session.Values["level"].(string)
 	if !ok || level == "" {
 		http.Error(w, "Unauthorized: no level data", http.StatusUnauthorized)
+		return
+	}
+
+	secret, ok := session.Values["secret"].(string)
+	if !ok || secret == "" {
+		http.Error(w, "Unauthorized: no secret data", http.StatusUnauthorized)
+		return
+	}
+
+	s, err := GetSessionBySecret(secret)
+	if err != nil {
+		http.Error(w, "Unauthorized: cannot find session", http.StatusUnauthorized)
+		fmt.Println(err)
+		return
+	}
+
+	if s.Level != level {
+		http.Error(w, "Unauthorized: incorrect access level", http.StatusUnauthorized)
 		return
 	}
 

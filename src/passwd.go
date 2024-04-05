@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	"log"
 	"os"
+
+	"github.com/AlexGrek/darkreader/src/utils"
 )
 
 const ACCESS_READER = "reader"
@@ -33,7 +35,10 @@ func InitPasswd() {
 		// If the file does not exist, generate random passwords and dump them into the file
 		fmt.Println("Generating passwords...")
 		passwords := generatePasswords(10) // Generate 10 random passwords
-		savePasswordsToFile(filePath, passwords)
+		err_save := savePasswordsToFile(filePath, passwords)
+		if err_save != nil {
+			log.Fatalln(err_save)
+		}
 		fmt.Println("Passwords generated and saved to", filePath)
 	} else {
 		// If the file exists, read the passwords from the file
@@ -57,7 +62,7 @@ func generatePasswords(count int) []Password {
 		password := Password{
 			ID:       i,
 			Level:    "reader",
-			Password: generateNumericPassword(4),
+			Password: utils.GenerateNumericPassword(4),
 		}
 		passwords = append(passwords, password)
 	}
@@ -65,14 +70,14 @@ func generatePasswords(count int) []Password {
 		password := Password{
 			ID:       i + len(passwords),
 			Level:    "contributor",
-			Password: generateRandomPassword(6),
+			Password: utils.GenerateRandomPassword(6),
 		}
 		passwords = append(passwords, password)
 	}
 	masterPassword := Password{
 		ID:       100000,
 		Level:    "master",
-		Password: generateRandomPassword(12),
+		Password: utils.GenerateRandomPassword(12),
 	}
 	passwords = append(passwords, masterPassword)
 	// Print the read passwords
@@ -81,24 +86,6 @@ func generatePasswords(count int) []Password {
 		fmt.Println(password)
 	}
 	return passwords
-}
-
-func generateRandomPassword(length int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	password := make([]byte, length)
-	for i := range password {
-		password[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(password)
-}
-
-func generateNumericPassword(length int) string {
-	const charset = "0123456789"
-	password := make([]byte, length)
-	for i := range password {
-		password[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(password)
 }
 
 // savePasswordsToFile saves passwords to a JSON file

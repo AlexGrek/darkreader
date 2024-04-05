@@ -20,8 +20,9 @@
 # Go workspace file
 go.work
 
-# Default passwords file
+# runtime files for dev
 master_passwords.json
+sessions.json
 
 /secret*
 /.fake

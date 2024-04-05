@@ -5,6 +5,8 @@ FROM alpine:3.17
 COPY server /server
 COPY static/ /static
 ENV TEXT_PATH=/data
+ENV SESSION_FILE=/secrets/sessions.json
+ENV MASTER_PASSWORDS_FILE=/secrets/master_passwords.json
 
 RUN apk add --no-cache ca-certificates
 

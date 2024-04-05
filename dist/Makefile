@@ -5,11 +5,12 @@ docker-build:
 
 .PHONY: docker-run
 docker-run:
-	docker run -d -u $(shell id -u):$(shell id -g) -e USER=$(shell id -un) -v ~/darkreader/demotexts:/data -p 6969:6969 --name "darkreader" darkreader-srv
+	mkdir -p $(shell pwd)/secrets
+	docker run -d -u $(shell id -u):$(shell id -g) -e USER=$(shell id -un) -v $(shell pwd)/secrets:/secrets -v $(shell pwd)/demotexts:/data -p 6969:6969 --name "darkreader" darkreader-srv
 
 .PHONY: docker-run-debug
 docker-run-debug:
-	docker run -it --rm -u $(id -u):$(id -g) -v ~/darkreader/demotexts:/data -p 6969:6969 --name "darkreader" --entrypoint /bin/sh darkreader-srv
+	docker run -it --rm -u $(id -u):$(id -g) -v $(shell pwd)/secrets:/secrets -v $(shell pwd)/demotexts:/data -p 6969:6969 --name "darkreader" --entrypoint /bin/sh darkreader-srv
 
 .PHONY: docker-kill
 docker-kill:

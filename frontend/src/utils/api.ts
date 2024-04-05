@@ -60,7 +60,7 @@ export const sendPostWithPayload = async (path: string, payload: any) => {
 export const getFileContentOr401 = async (catalog: string, fileName: string) => {
   try {
     const response = await fetch(`/api/text/${catalog}/${fileName}`);
-    if (response.status === 401) {
+    if (response.status >= 400) {
       return "401"
     }
     const data = await response.text();

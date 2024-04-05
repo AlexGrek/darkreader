@@ -27,13 +27,6 @@ func GetOneCatalogHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
-	// Get the session
-	session, err := store.Get(r, "session-name")
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
 	// Extract directory and filename from the URL path
 	vars := mux.Vars(r)
 	directory := vars["directory"]
@@ -47,8 +40,7 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 	_, catalog := TextHierarchyOneDir(directory)
 	if catalog.Protected {
 		// Check if the user is authenticated
-		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		if !checkLoggedIn(w, r, ACCESS_READER) {
 			return
 		}
 	}
@@ -105,6 +97,8 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) {
 	_, err = CreateNewCatalogAndFile(catalogInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		return
 	}
 
 	// Send success response
@@ -134,6 +128,7 @@ func HandleAppend(w http.ResponseWriter, r *http.Request) {
 	err = AddFileToCatalog(catalogInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 
