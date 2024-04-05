@@ -110,7 +110,6 @@ func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel s
 		http.Error(w, "Session data incomplete (secret)", http.StatusBadRequest)
 		return false
 	}
-	fmt.Println("Permission level: ", level)
 
 	if AuthLevelAsNumeric(level) < AuthLevelAsNumeric(requiredAccessLevel) {
 		http.Error(w, "Higher permission level required", http.StatusForbidden)

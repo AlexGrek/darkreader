@@ -12,9 +12,10 @@ interface TextViewerProps {
   catalog: string;
   nextPage: string | null;
   prevPage: string | null;
+  fontSize: number;
 }
 
-const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, prevPage }) => {
+const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, prevPage, fontSize }) => {
   const [fileContent, setFileContent] = useState<string>('');
   const [authPopupVisible, setAuthPopupVisible] = useState<boolean>(false);
 
@@ -65,7 +66,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
       <div>
         <h2>{toChapterName(fileName)}</h2>
         {renderTop()}
-        <article className='story-text'>{renderText(fileContent)}</article>
+        <article className='story-text' style={{ fontSize: `${fontSize}pt` }}>{renderText(fileContent)}</article>
         {renderBottom()}
       </div>
     </div>

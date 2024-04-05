@@ -13,7 +13,12 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  position: fixed;
   padding: 10px;
+  background-color: rgba(85, 85, 85, 0.199);
+  border-radius: 4pt;
+  opacity: .7;
+  padding: 5pt 8pt;
 }
 
 .bar {
@@ -31,9 +36,9 @@
   color: #ffffffce;
   padding: 20px;
   position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
+  top: 0;
+  left: 0;
+  height: 100vh;
   transition: transform 0.3s ease-in-out;
   backdrop-filter: blur(7px);
 }
@@ -58,10 +63,6 @@
 .sidebar ul {
   list-style-type: none;
   padding: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
 }
 
 .sidebar li {
@@ -80,7 +81,7 @@
   }
 
   .content-container {
-    padding: 0 10pt 0 0px;
+    padding: 0 10pt 0 10pt;
     margin-left: 0;
   }
 
@@ -108,7 +109,7 @@
 
 .sidebar-return-button {
   font-size: large;
-  
+
   padding: 5pt 8pt;
   border-radius: 3pt;
   text-align: center;

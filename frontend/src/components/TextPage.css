@@ -1,0 +1,44 @@
+.sidebar-data-menu-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 100pt); 
+}
+
+.top-sidebar-item {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.font-control-panel-main {
+    position: sticky;
+    height: 100pt;
+    bottom: 0;
+}
+
+.font-control-panel-editor {
+    display: flex;
+    background-color: rgba(48, 48, 48, 0.582);
+    padding: 4pt 2pt;
+    width: 200px;
+    height: 20pt;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 5pt auto;
+    border-radius: 6pt;
+    opacity: .8;
+    font-size: small;
+}
+
+.font-control-panel-editor button {
+    font-size: small;
+    height: 20pt;
+    padding: 0 6pt;
+    border-radius: 2px;
+    color: rgba(255, 255, 255, 0.801);
+}
+
+.font-control-panel-editor-header {
+    font-size: large;
+}
