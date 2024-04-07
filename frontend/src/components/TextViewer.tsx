@@ -47,7 +47,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   const renderTop = () => {
     if (prevPage) {
       const entry = prevPage;
-      return <span><GrPrevious /><Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></span>
+      return <span className='top-bar-text align-flex-center'><GrPrevious /><Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></span>
     }
     return null;
   }
@@ -55,7 +55,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   const renderBottom = () => {
     if (nextPage) {
       const entry = nextPage;
-      return <footer className='footer-text'><GrNext /> <Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></footer>
+      return <footer className='footer-text align-flex-center'><GrNext /> <Link to={`/text/${catalog}/${entry}`}>{toChapterName(entry)}</Link></footer>
     }
     return null;
   }
@@ -63,7 +63,7 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   return (
     <div className='text-viewer-main'>
       <LoginPopup isOpen={authPopupVisible} onClose={loggedIn} />
-      <div>
+      <div className='text-viewer-container'>
         <h2>{toChapterName(fileName)}</h2>
         {renderTop()}
         <article className='story-text' style={{ fontSize: `${fontSize}pt` }}>{renderText(fileContent)}</article>

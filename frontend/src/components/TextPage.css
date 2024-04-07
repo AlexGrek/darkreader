@@ -24,6 +24,7 @@
     height: 20pt;
     flex-direction: row;
     align-items: center;
+    align-content: center;
     justify-content: space-evenly;
     margin: 5pt auto;
     border-radius: 6pt;

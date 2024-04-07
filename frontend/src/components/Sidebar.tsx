@@ -35,6 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, menu }) => {
           {menu}
         </div>
       </div>
+      <div className={`sidebar-overlay ${isSidebarOpen ? 'visible' : 'hidden'}`} onClick={toggleSidebar}></div>
       <div ref={componentRef} className="content-container">{children}</div>
     </div>
   );

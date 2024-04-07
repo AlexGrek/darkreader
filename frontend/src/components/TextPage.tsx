@@ -62,7 +62,7 @@ const TextPage: React.FC = () => {
   const renderMenu = () => {
     const dynamic = renderMenuEntries();
     const menuItems = [
-      <Link className='sidebar-return-button' to={'/'}><RiHome2Line /> Home</Link>,
+      <Link className='sidebar-return-button align-flex-center' to={'/'}><RiHome2Line /> Home</Link>,
       <div className='sidebar-data-menu-container'>{dynamic}{renderFontControlPanel()}</div>]
     return menuItems
   }

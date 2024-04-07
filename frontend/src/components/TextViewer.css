@@ -3,7 +3,7 @@
     font-size: 15pt;
     padding: 0 1em;
     max-width: 50em;
-    margin: auto;
+    margin: 5pt auto 20pt auto;
     text-align: justify;
     line-height: 1.28em;
 }
@@ -15,11 +15,15 @@
 }
 
 footer {
-    padding: 2em;
+    margin-bottom: 20pt;
 }
 
 @media (max-width: 768px) {
     .story-text {
         padding: 0 1pt;
     }
+}
+
+.text-viewer-container {
+    padding-bottom: 12pt;
 }

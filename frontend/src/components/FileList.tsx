@@ -46,8 +46,8 @@ const FileList: React.FC<FileListProps> = ({appendMode}) => {
       <div className='file-list-entry-bottom'>
         <p className='file-list-tags'><FaTags /> {renderTags(catalog.tags)}</p>
         <div className='file-list-entry-metedata'>
-          <p className='file-list-pages'><RxFileText /> {catalog.pages}</p>
-          <p className='file-list-chapters'><FaBookOpen /> {catalog.files.length}</p>
+          <p className='file-list-pages align-flex-center'><RxFileText /> {catalog.pages}</p>
+          <p className='file-list-chapters align-flex-center'><FaBookOpen /> {catalog.files.length}</p>
         </div>
       </div>
     </div>

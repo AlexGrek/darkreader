@@ -4,8 +4,18 @@
 
 .home-footer {
     display: flex;
-    align-items: flex-end;
+    align-items: baseline;
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
+    margin: 16pt;
+    opacity: .7;
+}
+
+.home-footer:hover {
+    opacity: 1;
+}
+
+.home-footer svg {
+    transform: translateY(2pt);
 }

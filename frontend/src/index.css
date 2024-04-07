@@ -89,3 +89,18 @@ button:focus-visible {
 .header-text {
   font-family: 'MantraCinta';
 }
+
+.align-flex-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.align-flex-center svg {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-right: .3em;
+}
