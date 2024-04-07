@@ -12,7 +12,7 @@
 }
 
 .popup-container {
-    background-color: rgb(28, 29, 78);
+    background-color: rgba(56, 56, 56, 0.807);
     padding: 20px;
     border-radius: 4px;
     text-align: center;
@@ -43,4 +43,3 @@
         transform: scale(1);
     }
 }
-

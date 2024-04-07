@@ -15,7 +15,7 @@
   cursor: pointer;
   position: fixed;
   padding: 10px;
-  background-color: rgba(85, 85, 85, 0.199);
+  background-color: rgba(85, 85, 85, 0.381);
   border-radius: 4pt;
   opacity: .7;
   padding: 5pt 8pt;
@@ -40,7 +40,7 @@
   left: 0;
   height: 100vh;
   transition: transform 0.3s ease-in-out;
-  backdrop-filter: blur(7px);
+  backdrop-filter: blur(8px);
 }
 
 .sidebar-close {

@@ -21,7 +21,7 @@
 }
 
 .file-list-entry-bottom p {
-    margin: 1px;
+    margin: 0;
     font-size: small;
     opacity: .8;
 }
@@ -46,6 +46,7 @@
 .file-list-entry-tag {
   display: inline-block;
   margin-right: 3pt;
+  margin-top: 3pt;
   padding: 1pt 4pt;
   border-radius: 2pt 2pt;
   background-color: rgba(102, 99, 99, 0.281);
