@@ -16,9 +16,12 @@ interface FileListAdminProps {
 
 }
 
+
+
 const FileListAdmin: React.FC<FileListAdminProps> = ({ }) => {
   const [files, setFiles] = useState<CatalogMap>({});
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
+  
 
   const fetchLogin = async () => {
     try {
@@ -96,7 +99,7 @@ const FileListAdmin: React.FC<FileListAdminProps> = ({ }) => {
     <div>
       <h1>Management panel</h1>
       <div>{renderEntries()}</div>
-      <LoginPopup data={"mode"} message={"add story"} isOpen={!loggedIn} onClose={() => updateLogin()} />
+      <LoginPopup data={"management panel"} message={"manage stuff"} isOpen={!loggedIn} onClose={() => updateLogin()} />
     </div>
   );
 };

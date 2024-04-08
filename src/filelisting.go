@@ -308,16 +308,16 @@ func DeleteFileAndCheckDir(payload DeleteTextPayload) error {
 	}
 
 	// Check if there are any remaining .txt files in the directory
-	dir, err := os.Open(payload.Catalog)
+	dir, err := os.Open(catalogPath(payload.Catalog))
 	if err != nil {
 		return err
 	}
-	defer dir.Close()
 
 	files, err := dir.Readdir(-1)
 	if err != nil {
 		return err
 	}
+	dir.Close()
 
 	hasTxt := false
 	for _, file := range files {
@@ -329,7 +329,7 @@ func DeleteFileAndCheckDir(payload DeleteTextPayload) error {
 
 	// If no .txt files are found, remove the directory
 	if !hasTxt {
-		err = os.Remove(payload.Catalog)
+		err = os.RemoveAll(catalogPath(payload.Catalog))
 		if err != nil {
 			return err
 		}

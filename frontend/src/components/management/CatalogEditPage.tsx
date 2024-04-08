@@ -9,14 +9,20 @@ import { toChapterName } from '../../utils/filenames';
 import '../TextPage.css'
 import MetadataEditor, { Metadata } from './MetadataEditor';
 import { RiSettings6Line } from "react-icons/ri";
+import ConfirmDeletePopup from '../ConfirmDeletePopup';
+import { RiDeleteBin5Fill } from "react-icons/ri";
 
-const DEFAULT_FONT_SIZE = 15;
+interface DeletePayload {
+  catalog: string;
+  file: string;
+}
 
 const CatalogEditPage: React.FC = () => {
   const { catalog } = useParams<{ catalog: string }>();
   const [catalogData, setCatalogData] = useState<Catalog | null>(null);
   const [errTxt, setErrTxt] = useState<string>("");
   const [etext, setEText] = useState<string>('');
+  const [del, setDel] = React.useState<DeletePayload | null>(null);
 
   const updateCatalog = () => {
     const fetchFileContent = async () => {
@@ -59,7 +65,10 @@ const CatalogEditPage: React.FC = () => {
       return <p className='top-sidebar-item'>Loading...</p>
     } else {
       return <ul className='top-sidebar-item'>{catalogData.files.map((entry, i) => {
-        return <li><Link to={`/edit/${catalog}/${entry}`} key={i}>{toChapterName(entry)}</Link></li>
+        const delFn = () => setDel({ catalog: catalog || "", file: entry })
+        return <li><Link to={`/edit/${catalog}/${entry}`} key={i}>{toChapterName(entry)}</Link>
+          <button onClick={delFn}><RiDeleteBin5Fill /></button>
+        </li>
       })}
       </ul>
     }
@@ -81,13 +90,13 @@ const CatalogEditPage: React.FC = () => {
     <div>
       <h3>Metadata</h3>
       <MetadataEditor initialMetadata={metadata} onSave={async (data) => {
-        const result = await sendPostWithPayload("editmeta", {"catalog": catalog, ...data})
-      if (result) {
+        const result = await sendPostWithPayload("editmeta", { "catalog": catalog, ...data })
+        if (result) {
           navigate("/manage")
           setEText("")
-      } else {
+        } else {
           setEText("Error, story not published")
-      }
+        }
       }
       } />
     </div>
@@ -101,8 +110,14 @@ const CatalogEditPage: React.FC = () => {
           <p>{etext}</p>
           {editorContent}
         </div>
-
       </Sidebar>
+      <ConfirmDeletePopup isOpen={del != null} onConfirm={async () => {
+        let result = await sendPostWithPayload("delete", del);
+        if (result) {
+          setDel(null)
+          navigate("/manage")
+        }
+      }} onCancel={() => setDel(null)} message={`delete ${del?.catalog}/${del?.file}`} />
 
     </div>
   );

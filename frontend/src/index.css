@@ -18,6 +18,7 @@ a {
   color: #d28b71;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #f2ba53;
 }
@@ -46,9 +47,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #ffcb64;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -103,4 +106,13 @@ button:focus-visible {
   justify-content: center;
   align-items: center;
   margin-right: .3em;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-row.center {
+  justify-content: center;
 }
