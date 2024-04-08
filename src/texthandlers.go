@@ -77,6 +77,28 @@ type AppendPayload struct {
 	Text    string `json:"text"`
 }
 
+type EditTextPayload struct {
+	Catalog string `json:"catalog"`
+	File    string `json:"file"`
+	Rename  string `json:"rename"`
+	Text    string `json:"text"`
+}
+
+type DeleteTextPayload struct {
+	Catalog string `json:"catalog"`
+	File    string `json:"file"`
+}
+
+type UpdateMetadataPayload struct {
+	Catalog string `json:"catalog"`
+	Tags        []string `json:"tags"`
+	Description string   `json:"description"`
+	Protected   bool     `json:"protected"`
+	Hidden      bool     `json:"hidden"`
+	Unpublished bool     `json:"unpublished"`
+}
+
+
 type CreatePayload struct {
 	Catalog     string   `json:"catalog"`
 	File        string   `json:"file"`
@@ -119,6 +141,97 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Catalog and file created successfully"))
 }
 
+func HandleDeleteText(w http.ResponseWriter, r *http.Request) {
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	if !checkLoggedIn(w, r, ACCESS_MASTER) {
+		return
+	}
+
+	var catalogInfo DeleteTextPayload
+	if err := json.Unmarshal(body, &catalogInfo); err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = DeleteFileAndCheckDir(catalogInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte("Text deleted"))
+}
+
+func HandleEditMetadata(w http.ResponseWriter, r *http.Request) {
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	if !checkLoggedIn(w, r, ACCESS_MASTER) {
+		return
+	}
+
+	var catalogInfo UpdateMetadataPayload
+	if err := json.Unmarshal(body, &catalogInfo); err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = UpdateMetadata(catalogInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte("Metadata changed"))
+}
+
+
+func HandleEditText(w http.ResponseWriter, r *http.Request) {
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	if !checkLoggedIn(w, r, ACCESS_MASTER) {
+		return
+	}
+
+	var catalogInfo EditTextPayload
+	if err := json.Unmarshal(body, &catalogInfo); err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = EditTextFile(catalogInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte("Text updated"))
+}
+
 func HandleAppend(w http.ResponseWriter, r *http.Request) {
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
@@ -149,3 +262,5 @@ func HandleAppend(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Catalog and file created successfully"))
 }
+
+

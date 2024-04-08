@@ -62,6 +62,9 @@ func main() {
 	r.HandleFunc("/api/catalog/{directory}", GetOneCatalogHandler).Methods("GET")
 	r.HandleFunc("/api/create", HandleCreate).Methods("POST")
 	r.HandleFunc("/api/append", HandleAppend).Methods("POST")
+	r.HandleFunc("/api/edit", HandleEditText).Methods("POST")
+	r.HandleFunc("/api/editmeta", HandleEditMetadata).Methods("POST")
+	r.HandleFunc("/api/delete", HandleDeleteText).Methods("POST")
 
 	// Serve static files and index.html from the same directory
 	r.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

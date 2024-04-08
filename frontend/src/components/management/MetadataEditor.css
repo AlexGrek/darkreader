@@ -1,0 +1,21 @@
+.metadata-editor {
+    width: 100%;
+    max-width: 1000pt;
+    margin: auto;
+    padding: 8pt;
+}
+
+.metadata-editor label {
+    font-size: large;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.metadata-editor input {
+    display: block;
+    font-size: large;
+    font-family: 'Courier New', Courier, monospace;
+    max-width: 800pt;
+    width: 90%;
+}

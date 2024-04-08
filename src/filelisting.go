@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Catalog struct {
@@ -86,7 +87,7 @@ func GenerateCatalog(catalogName string, rootPath string) (string, Catalog) {
 			Description: "",
 			Protected:   true,
 			Unpublished: false,
-			Hidden: false,
+			Hidden:      false,
 		}); err != nil {
 			log.Println(err)
 		}
@@ -198,7 +199,7 @@ func AddFileToCatalog(catalogInfo AppendPayload) error {
 		rootPath = "demotexts"
 	}
 	name := ConvertIntoFileNameString(catalogInfo.Catalog)
-	catalogDir := filepath.Join(rootPath, ConvertIntoFileNameString(catalogInfo.Catalog))
+	catalogDir := catalogPath(ConvertIntoFileNameString(catalogInfo.Catalog))
 	if _, err := os.Stat(catalogDir); err != nil {
 		fmt.Println("Directory does not exist to append file to:", name)
 		return err
@@ -214,12 +215,21 @@ func AddFileToCatalog(catalogInfo AppendPayload) error {
 	return nil
 }
 
-func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
+// add os.Getenv("TEXT_PATH") as prefix
+func catalogPath(catalogName string) string {
+	// Check if catalogName contains ".." or "/", sEcUrItY
+    if strings.Contains(catalogName, "..") || strings.Contains(catalogName, "/") || strings.Contains(catalogName, "\\") {
+        return "fallback_default_catalog"
+    }
 	rootPath := os.Getenv("TEXT_PATH")
 	if rootPath == "" {
 		rootPath = "demotexts"
 	}
-	catalogDir := filepath.Join(rootPath, ConvertIntoFileNameString(catalogInfo.Catalog))
+	return filepath.Join(rootPath, catalogName)
+}
+
+func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
+	catalogDir := catalogPath(ConvertIntoFileNameString(catalogInfo.Catalog))
 	if _, err := os.Stat(catalogDir); os.IsNotExist(err) {
 		if err := os.Mkdir(catalogDir, 0755); err != nil {
 			return false, err
@@ -247,6 +257,37 @@ func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
 	return true, nil
 }
 
+func EditTextFile(payload EditTextPayload) error {
+	// edit request processing (and renaming)
+	filePath := filepath.Join(catalogPath(payload.Catalog), payload.File)
+	if err := overwriteFileWithText(filePath, payload.Text); err != nil {
+		return err
+	}
+
+	if payload.Rename != "" && payload.File != payload.Rename {
+		// mv
+		newPath := filepath.Join(catalogPath(payload.Catalog), payload.Rename)
+		return os.Rename(filePath, newPath)
+	}
+
+	return nil
+}
+
+func overwriteFileWithText(filePath string, newText string) error {
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(newText)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func createFile(catalogDir string, file string, text string, existing int) error {
 	filePath := filepath.Join(catalogDir, MakeTextFileName(file, existing))
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -255,5 +296,79 @@ func createFile(catalogDir string, file string, text string, existing int) error
 			return err
 		}
 	}
+	return nil
+}
+
+func DeleteFileAndCheckDir(payload DeleteTextPayload) error {
+	// Remove the file
+	filePath := filepath.Join(catalogPath(payload.Catalog), payload.File)
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Check if there are any remaining .txt files in the directory
+	dir, err := os.Open(payload.Catalog)
+	if err != nil {
+		return err
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		return err
+	}
+
+	hasTxt := false
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".txt") {
+			hasTxt = true
+			break
+		}
+	}
+
+	// If no .txt files are found, remove the directory
+	if !hasTxt {
+		err = os.Remove(payload.Catalog)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Directory %s removed\n", payload.Catalog)
+	}
+
+	return nil
+}
+
+func UpdateMetadata(payload UpdateMetadataPayload) error {
+	// Create or open the metadata file
+	filePath := filepath.Join(catalogPath(payload.Catalog), "metadata.json")
+	metadataFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer metadataFile.Close()
+
+	// Create metadata struct
+	metadata := Metadata{
+		Tags:        payload.Tags,
+		Description: payload.Description,
+		Protected:   payload.Protected,
+		Hidden:      payload.Hidden,
+		Unpublished: payload.Unpublished,
+	}
+
+	// Marshal metadata struct to JSON
+	metadataJSON, err := json.MarshalIndent(metadata, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	// Write JSON to file
+	_, err = metadataFile.Write(metadataJSON)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Metadata updated for catalog %s\n", payload.Catalog)
 	return nil
 }

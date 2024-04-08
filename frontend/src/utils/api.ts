@@ -7,6 +7,8 @@ export interface Catalog {
   prettyName: string;
   pages: number;
   protected: boolean;
+  hidden: boolean;
+  unpublished: boolean;
 }
 
 export type CatalogMap = { [key: string]: Catalog };

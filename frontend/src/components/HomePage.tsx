@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
       <footer className='home-footer'>
         <Link className='home-footer-button' to='/create'>Create</Link>|
         <a className='home-footer-button' href='#' onClick={() => setAppendMode(!appendMode)}>Append</a>|
-        <a className='home-footer-button' href='#' onClick={() => setAppendMode(!appendMode)}>Manage</a>|
+        <Link to='/manage' className='home-footer-button'>Manage</Link>|
         <a className='home-footer-button' href="https://github.com/AlexGrek/darkreader"><FaGithub /></a>
       </footer>
     </div>

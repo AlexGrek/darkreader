@@ -62,3 +62,14 @@
   margin: 2pt 6pt;
   font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
+.snap-right {
+  width: 100%;
+  text-align: right;
+  display: block;
+}
+
+.file-entry-header.admin {
+  display: flex;
+  width: 100%;
+}
