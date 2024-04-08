@@ -11,6 +11,7 @@ import MetadataEditor, { Metadata } from './MetadataEditor';
 import { RiSettings6Line } from "react-icons/ri";
 import ConfirmDeletePopup from '../ConfirmDeletePopup';
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import { IoAddCircle } from "react-icons/io5";
 
 interface DeletePayload {
   catalog: string;
@@ -67,9 +68,10 @@ const CatalogEditPage: React.FC = () => {
       return <ul className='top-sidebar-item'>{catalogData.files.map((entry, i) => {
         const delFn = () => setDel({ catalog: catalog || "", file: entry })
         return <li><Link to={`/edit/${catalog}/${entry}`} key={i}>{toChapterName(entry)}</Link>
-          <button onClick={delFn}><RiDeleteBin5Fill /></button>
+          <button className='delete-btn' onClick={delFn}><RiDeleteBin5Fill /></button>
         </li>
       })}
+      <li><Link to={`/append/${catalog}`}><IoAddCircle /> Add new page</Link></li>
       </ul>
     }
   }

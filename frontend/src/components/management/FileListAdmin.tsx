@@ -11,6 +11,7 @@ import LoginPopup from '../LoginPopup';
 import { LuEyeOff } from "react-icons/lu";
 import { LuEye } from "react-icons/lu";
 import { VscGistSecret } from "react-icons/vsc";
+import { RiSettings6Line } from "react-icons/ri";
 
 interface FileListAdminProps {
 
@@ -97,7 +98,7 @@ const FileListAdmin: React.FC<FileListAdminProps> = ({ }) => {
 
   return (
     <div>
-      <h1>Management panel</h1>
+      <h2><RiSettings6Line/><br/>Management panel</h2>
       <div>{renderEntries()}</div>
       <LoginPopup data={"management panel"} message={"manage stuff"} isOpen={!loggedIn} onClose={() => updateLogin()} />
     </div>

@@ -43,3 +43,7 @@
         transform: scale(1);
     }
 }
+
+.confirm-delete-group button {
+    margin: 2pt 6pt;
+}

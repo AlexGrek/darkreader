@@ -43,3 +43,10 @@
 .font-control-panel-editor-header {
     font-size: large;
 }
+
+.delete-btn {
+    background-color: transparent;
+    margin-left: 8pt;
+    padding: 2pt;
+    opacity: .8;
+}

@@ -17,7 +17,7 @@ interface ConfirmDeletePopupProps {
         <div className="popup-container">
           <h2>Confirmation required</h2>
           <p><IoWarningOutline /> Confirm to <code>{displayAction}</code></p>
-          <div className='flex-row center'>
+          <div className='flex-row center confirm-delete-group'>
             <button className='confirm-btn' onClick={onConfirm}>Confirm</button>
             <button className='cancel-btn' onClick={onCancel}>Cancel</button>
           </div>
