@@ -86,6 +86,32 @@ type LoginRequestBody struct {
 	Password string `json:"password"`
 }
 
+func getAccessLevelIfLoggedIn(r *http.Request) string {
+	s, err := store.Get(r, "session-name")
+	if err != nil {
+		fmt.Println("Error: unauthenticated request detected")
+		fmt.Println(err)
+		return ""
+	}
+	if auth, ok := s.Values["authenticated"].(bool); !ok || !auth {
+		return ""
+	}
+
+	level, ok := s.Values["level"].(string)
+	if !ok {
+		return ""
+	}
+	secret, ok := s.Values["secret"].(string)
+	if !ok {
+		return ""
+	}
+	access, err := ValidateAccess(secret, level)
+	if err != nil || !access {
+		return ""
+	}
+	return level
+}
+
 func checkLoggedIn(w http.ResponseWriter, r *http.Request, requiredAccessLevel string) bool {
 	s, err := store.Get(r, "session-name")
 	if err != nil {

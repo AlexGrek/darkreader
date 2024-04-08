@@ -11,9 +11,22 @@ import (
 )
 
 func GetCatalogsHandler(w http.ResponseWriter, r *http.Request) {
+	level := AuthLevelAsNumeric(getAccessLevelIfLoggedIn(r))
+
+	includeHidden, includeUnpubliched := false, false
+
+	if (level >= AuthLevelAsNumeric(ACCESS_READER)) {
+		// logged in at least
+		includeHidden = true
+	}
+	if (level >= AuthLevelAsNumeric(ACCESS_MASTER)) {
+		// only master level access
+		includeUnpubliched = true
+	}
+
 	// Return a response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(TextHierarchy())
+	json.NewEncoder(w).Encode(TextHierarchy(includeHidden, includeUnpubliched))
 }
 
 func GetOneCatalogHandler(w http.ResponseWriter, r *http.Request) {

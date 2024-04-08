@@ -15,15 +15,19 @@ type Catalog struct {
 	PrettyName  string   `json:"prettyName"`
 	Pages       int64    `json:"pages"`
 	Protected   bool     `json:"protected"`
+	Hidden      bool     `json:"hidden"`
+	Unpublished bool     `json:"unpublished"`
 }
 
 type Metadata struct {
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
 	Protected   bool     `json:"protected"`
+	Hidden      bool     `json:"hidden"`
+	Unpublished bool     `json:"unpublished"`
 }
 
-func GenerateHierarchy(rootPath string) (map[string]Catalog, error) {
+func GenerateHierarchy(rootPath string, includeUnpublished bool, includeHidden bool) (map[string]Catalog, error) {
 	result := make(map[string]Catalog)
 
 	// Get list of directories in the rootPath
@@ -36,7 +40,12 @@ func GenerateHierarchy(rootPath string) (map[string]Catalog, error) {
 		if dir.IsDir() {
 			catalogName := dir.Name()
 			catalogName, catalog := GenerateCatalog(catalogName, rootPath)
-
+			if catalog.Hidden && !includeHidden {
+				continue
+			}
+			if catalog.Unpublished && !includeUnpublished {
+				continue
+			}
 			result[catalogName] = catalog
 		}
 	}
@@ -75,7 +84,9 @@ func GenerateCatalog(catalogName string, rootPath string) (string, Catalog) {
 		if err := createMetadataFile(metadataFilePath, &Metadata{
 			Tags:        make([]string, 0),
 			Description: "",
-			Protected: true,
+			Protected:   true,
+			Unpublished: false,
+			Hidden: false,
 		}); err != nil {
 			log.Println(err)
 		}
@@ -88,6 +99,8 @@ func GenerateCatalog(catalogName string, rootPath string) (string, Catalog) {
 		catalog.Description = meta.Description
 		catalog.Tags = meta.Tags
 		catalog.Protected = meta.Protected
+		catalog.Hidden = meta.Hidden
+		catalog.Unpublished = meta.Unpublished
 	}
 
 	size, err := calculateTotalTxtFileSize(filepath.Join(rootPath, catalogName))
@@ -104,7 +117,7 @@ func readMetadataFile(filePath string) (Metadata, error) {
 		return data, err
 	}
 	defer file.Close()
-	
+
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&data); err != nil {
 		return data, err
@@ -129,12 +142,12 @@ func createMetadataFile(filePath string, data *Metadata) error {
 	return nil
 }
 
-func TextHierarchy() map[string]Catalog {
+func TextHierarchy(includeHidden bool, includeUnpublished bool) map[string]Catalog {
 	rootPath := os.Getenv("TEXT_PATH")
 	if rootPath == "" {
 		rootPath = "demotexts"
 	}
-	hierarchy, err := GenerateHierarchy(rootPath)
+	hierarchy, err := GenerateHierarchy(rootPath, includeUnpublished, includeHidden)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -188,7 +201,7 @@ func AddFileToCatalog(catalogInfo AppendPayload) error {
 	catalogDir := filepath.Join(rootPath, ConvertIntoFileNameString(catalogInfo.Catalog))
 	if _, err := os.Stat(catalogDir); err != nil {
 		fmt.Println("Directory does not exist to append file to:", name)
-		return err;
+		return err
 	}
 
 	_, catalog := GenerateCatalog(name, rootPath)
@@ -198,7 +211,7 @@ func AddFileToCatalog(catalogInfo AppendPayload) error {
 		return err
 	}
 
-	return nil;
+	return nil
 }
 
 func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
@@ -221,7 +234,7 @@ func CreateNewCatalogAndFile(catalogInfo CreatePayload) (bool, error) {
 	metadata := Metadata{
 		Tags:        catalogInfo.Tags,
 		Description: catalogInfo.Description,
-		Protected: catalogInfo.Protected,
+		Protected:   catalogInfo.Protected,
 	}
 	metadataFilePath := filepath.Join(catalogDir, "metadata.json")
 	metadataJSON, err := json.MarshalIndent(metadata, "", "    ")
