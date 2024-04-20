@@ -1,5 +1,5 @@
 .story-text {
-    font-family: 'Storyteller', sans-serif;
+    font-family: 'Times New Roman', serif;
     font-size: 15pt;
     padding: 0 1em;
     max-width: 50em;
@@ -20,7 +20,11 @@ footer {
 
 @media (max-width: 768px) {
     .story-text {
-        padding: 0 1pt;
+        padding: 0 12pt;
+    }
+
+    .text-viewer-container {
+        padding-top: 18pt;
     }
 }
 

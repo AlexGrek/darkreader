@@ -8,10 +8,22 @@ import { Link } from 'react-router-dom';
 import { RiHome2Line } from "react-icons/ri";
 import { toChapterName } from '../utils/filenames';
 import { RiFontSize2 } from "react-icons/ri";
-import { FaMinus, FaPlus } from "react-icons/fa";
+import { FaMinus, FaMoon, FaPlus } from "react-icons/fa";
 import './TextPage.css'
+import { RxFontFamily } from "react-icons/rx";
+import { IoArrowForwardSharp } from "react-icons/io5";
+import { IoArrowBackSharp } from "react-icons/io5";
+import { TbLamp2 } from "react-icons/tb";
+import { ImSwitch } from "react-icons/im";
 
 const DEFAULT_FONT_SIZE = 15;
+const DEFAULT_FONT_NAME = "Storyteller";
+const DEFAULT_FONT_FAMILY = "'Storyteller', serif";
+const FONTS = {
+  [DEFAULT_FONT_NAME]: DEFAULT_FONT_FAMILY,
+  "Times": "'Times New Roman', serif",
+  "Sans": "sans-serif"
+ }
 
 const TextPage: React.FC = () => {
   const { fileName } = useParams<{ fileName: string }>();
@@ -22,6 +34,39 @@ const TextPage: React.FC = () => {
     const savedSize = localStorage.getItem('fontSize');
     return savedSize ? parseInt(savedSize, 10) : DEFAULT_FONT_SIZE;
   });
+  const [fontFamily, setFontFamily] = useState<string>(() => {
+    const saved = localStorage.getItem('fontFamily');
+    return saved ? saved : DEFAULT_FONT_NAME;
+  });
+  const [lightMode, setLightMode] = useState<boolean>(() => {
+    const storedMode = localStorage.getItem("lightMode");
+    return storedMode ? JSON.parse(storedMode) : false;
+  });
+  useEffect(() => {
+    localStorage.setItem("lightMode", JSON.stringify(lightMode));
+  }, [lightMode]);
+
+  useEffect(() => {
+    localStorage.setItem("fontFamily", fontFamily);
+  }, [fontFamily]);
+
+  const handleNextFont = () => {
+    const fontsArray = Object.keys(FONTS);
+    const currentIndex = fontsArray.indexOf(fontFamily);
+    const nextIndex = (currentIndex + 1) % fontsArray.length;
+    setFontFamily(fontsArray[nextIndex]);
+  };
+
+  const toggleLightMode = () => {
+    setLightMode(prevMode => !prevMode);
+  };
+
+  const handlePrevFont = () => {
+    const fontsArray = Object.keys(FONTS);
+    const currentIndex = fontsArray.indexOf(fontFamily);
+    const prevIndex = (currentIndex - 1 + fontsArray.length) % fontsArray.length;
+    setFontFamily(fontsArray[prevIndex]);
+  };
 
   const handleSetFontSize = (size: number) => {
     let newSize = size;
@@ -75,6 +120,16 @@ const TextPage: React.FC = () => {
         {fontSize}
         <button onClick={() => handleSetFontSize(fontSize + 1)}><FaPlus /></button>
       </div>
+      <div className='font-control-panel-editor'>
+        <p className='font-control-panel-editor-header'><RxFontFamily /></p>
+        <button onClick={handlePrevFont}><IoArrowBackSharp /></button>
+        {fontFamily}
+        <button onClick={handleNextFont}><IoArrowForwardSharp  /></button>
+      </div>
+      <div className='font-control-panel-editor'>
+        <p className='font-control-panel-editor-header'><TbLamp2 /></p>
+        <button onClick={toggleLightMode}>{lightMode ? <ImSwitch /> : <FaMoon />}</button>
+      </div>
     </div>
   }
 
@@ -113,11 +168,13 @@ const TextPage: React.FC = () => {
 
   return (
     <div>
-      <p>{errTxt}</p>
-      <Sidebar menu={renderMenu()}>
+      {errTxt && <p>{errTxt}</p>}
+      <Sidebar menu={renderMenu()} lightMode={lightMode}>
         <TextViewer fileName={fileName || ""} catalog={catalog || ''}
           nextPage={genNextPage()}
           fontSize={fontSize}
+          fontFamily={fontFamily}
+          lightMode={lightMode}
           prevPage={genPrevPage()} />
       </Sidebar>
 

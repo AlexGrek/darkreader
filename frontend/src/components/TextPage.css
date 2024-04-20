@@ -1,8 +1,13 @@
+.text-viewer-main.light-mode {
+    background-color: antiquewhite;
+    color: black;
+}
+
 .sidebar-data-menu-container {
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 100pt); 
+    max-height: calc(100vh - 200pt); 
 }
 
 .top-sidebar-item {
@@ -14,6 +19,25 @@
     position: sticky;
     height: 30pt;
     bottom: 0;
+}
+
+.light-mode a {
+    color: rgb(1, 60, 55);
+}
+
+.light-mode a:hover {
+    color: rgb(2, 100, 92);
+    text-decoration: underline;
+}
+
+.light-mode .font-control-panel-editor {
+    color: white;
+    background-color: rgba(48, 48, 48, 0.734);
+    opacity: .7;
+}
+
+.light-mode .font-control-panel-editor:hover {
+    opacity: 1;
 }
 
 .font-control-panel-editor {

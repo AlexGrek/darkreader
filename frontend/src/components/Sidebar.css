@@ -42,6 +42,20 @@
   height: 100vh;
   transition: transform 0.3s ease;
   backdrop-filter: blur(8px);
+  font-family: Involve, sans-serif;
+}
+
+.sidebar.light-mode {
+  background-color: #c1bfb8;
+  color: #1d1d1dce;
+}
+
+.sidebar.light-mode a {
+  color: rgb(1, 60, 55);
+}
+
+.sidebar.light-mode a:hover {
+  color: rgb(2, 100, 92);
 }
 
 .sidebar-overlay.hidden {
@@ -96,8 +110,17 @@
 
 .content-container {
   width: 100%;
-  margin-left: 270px;
-  padding: 20px;
+  margin-left: 290px;
+}
+
+.content-container.light-mode {
+  background-color: antiquewhite;
+  color: black;
+}
+
+.sidebar-container.light-mode {
+  background-color:rgba(221, 221, 221, 0.381);
+  color: black;
 }
 
 @media (max-width: 768px) {
@@ -106,7 +129,6 @@
   }
 
   .content-container {
-    padding: 0 10pt 0 10pt;
     margin-left: 0;
   }
 

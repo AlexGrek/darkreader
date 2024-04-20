@@ -13,9 +13,11 @@ interface TextViewerProps {
   nextPage: string | null;
   prevPage: string | null;
   fontSize: number;
+  fontFamily: string;
+  lightMode: boolean;
 }
 
-const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, prevPage, fontSize }) => {
+const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, prevPage, fontSize, fontFamily, lightMode }) => {
   const [fileContent, setFileContent] = useState<string>('');
   const [authPopupVisible, setAuthPopupVisible] = useState<boolean>(false);
 
@@ -44,6 +46,10 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
     updateText()
   }
 
+  const classWithLightMode = (clazz: string) => {
+    return lightMode ? `${clazz} light-mode` : clazz;
+  }
+
   const renderTop = () => {
     if (prevPage) {
       const entry = prevPage;
@@ -61,12 +67,12 @@ const TextViewer: React.FC<TextViewerProps> = ({ fileName, catalog, nextPage, pr
   }
 
   return (
-    <div className='text-viewer-main'>
+    <div className={classWithLightMode('text-viewer-main')}>
       <LoginPopup isOpen={authPopupVisible} onClose={loggedIn} />
       <div className='text-viewer-container'>
         <h2>{toChapterName(fileName)}</h2>
         {renderTop()}
-        <article className='story-text' style={{ fontSize: `${fontSize}pt` }}>{renderText(fileContent)}</article>
+        <article className='story-text' style={{ fontSize: `${fontSize}pt`, fontFamily: fontFamily }}>{renderText(fileContent)}</article>
         {renderBottom()}
       </div>
     </div>

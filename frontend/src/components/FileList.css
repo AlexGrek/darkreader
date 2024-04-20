@@ -2,22 +2,34 @@
     min-width: 22pt;
     max-width: 600pt;
     width: 90%;
-    border: 4px solid hsla(10, 4%, 31%, 0.699);
-    border-radius: 4px;
-    padding: 6pt;
+    border: 1px solid hsla(10, 4%, 31%, 0.17);
+    border-radius: 1px;
+    padding: 8pt;
     margin: 4pt auto;
     text-align: left;
-
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-
+    background-color: rgb(28, 28, 28);
+    box-shadow: rgba(18, 18, 18, 0.2) 0px 2px 8px 0px;
     transform: translateY(50px) rotateX(-90deg);
     animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.file-list-entry:hover {
+  background-color: rgb(37, 37, 37);
 }
 
 .file-list-entry-bottom {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.file-entry-header {
+  font-family: Involve, sans;
+}
+
+.file-list-entry-descr {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  opacity: .9;
 }
 
 .file-list-entry-bottom p {

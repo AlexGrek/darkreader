@@ -84,6 +84,13 @@ button:focus-visible {
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Involve';
+  src: url('/fonts/Involve-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .logo-top-image {
   max-height: 250pt;
   max-width: 70%;
