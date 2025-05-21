@@ -43,7 +43,7 @@ func main() {
 
 	static := os.Getenv("SERVER_STATIC")
 	if static == "" {
-		static = "/static"
+		static = "static"
 	}
 
 	r := mux.NewRouter()
