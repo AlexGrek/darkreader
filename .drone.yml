@@ -1,0 +1,41 @@
+kind: pipeline
+type: kubernetes
+name: build
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+    - custom
+
+steps:
+  - name: build-image
+    image: plugins/kaniko
+    settings:
+      insecure: true
+      repo:
+        from_secret: image
+      dockerfile: Dockerfile
+      tags: "${DRONE_COMMIT_SHA:0:5}"
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+  - name: deploy
+    image: alpine/helm:latest
+    environment:
+      API_IMAGE:
+        from_secret: image
+    commands:
+      - |
+        echo "Using API_IMAGE=$API_IMAGE"
+
+        helm upgrade --install darkreader ./helm/darkreader \
+          --namespace=darkreader \
+          --create-namespace \
+          --set image.repository=$API_IMAGE \
+          --set image.tag=${DRONE_COMMIT_SHA:0:5} \
+          -f helm/values-ingress-prod.yaml \
+          --wait

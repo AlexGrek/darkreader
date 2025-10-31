@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: localhost:5000/darkreader
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 6969
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+
+env:
+  environment: "production"
+  masterPasswordsFile: "/app/data/passwd.json"
+  adminFilePath: "/var/secrets/admins.txt"
+  sessionFile: "/app/data/sessions.json"
+  textPath: "/app/data/texts"
+
+storage:
+  hostPath: /etc/darkreader-data
+  mountPath: /app/data
+
+terminationGracePeriodSeconds: 2
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  host: darkreader.example.com
+  tls:
+    enabled: false
+    secretName: darkreader-tls
