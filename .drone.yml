@@ -13,7 +13,7 @@ steps:
   - name: build-image
     image: plugins/kaniko
     settings:
-      insecure: true
+      insecure: false
       repo:
         from_secret: image
       dockerfile: Dockerfile
