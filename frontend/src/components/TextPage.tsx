@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TextViewer from '../components/TextViewer';
 import Sidebar from './Sidebar';
-import { Catalog, getCatalog } from '../utils/api';
+import { Catalog, getCatalog, getEpubFile } from '../utils/api';
 import { Link } from 'react-router-dom';
 import { RiHome2Line } from "react-icons/ri";
 import { toChapterName } from '../utils/filenames';
@@ -23,7 +23,7 @@ const FONTS = {
   [DEFAULT_FONT_NAME]: DEFAULT_FONT_FAMILY,
   "Times": "'Times New Roman', serif",
   "Sans": "sans-serif"
- }
+}
 
 const TextPage: React.FC = () => {
   const { fileName } = useParams<{ fileName: string }>();
@@ -100,6 +100,11 @@ const TextPage: React.FC = () => {
     fetchFileContent();
   }
 
+  const handleEpubClick = async () => {
+    await getEpubFile(catalog || "");
+  }
+
+
   useEffect(() => {
     updateCatalog()
   }, [fileName, catalog])
@@ -108,6 +113,7 @@ const TextPage: React.FC = () => {
     const dynamic = renderMenuEntries();
     const menuItems = [
       <Link className='sidebar-return-button align-flex-center' to={'/'}><RiHome2Line /> Home</Link>,
+      <button onClick={handleEpubClick}>Download epub</button>,
       <div className='sidebar-data-menu-container'>{dynamic}{renderFontControlPanel()}</div>]
     return menuItems
   }
@@ -124,7 +130,7 @@ const TextPage: React.FC = () => {
         <p className='font-control-panel-editor-header'><RxFontFamily /></p>
         <button onClick={handlePrevFont}><IoArrowBackSharp /></button>
         {fontFamily}
-        <button onClick={handleNextFont}><IoArrowForwardSharp  /></button>
+        <button onClick={handleNextFont}><IoArrowForwardSharp /></button>
       </div>
       <div className='font-control-panel-editor'>
         <p className='font-control-panel-editor-header'><TbLamp2 /></p>

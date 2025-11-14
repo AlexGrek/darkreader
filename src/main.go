@@ -56,7 +56,7 @@ func main() {
 	r.HandleFunc("/api/echo_reader", echoHandlerReader).Methods("POST")
 	r.HandleFunc("/api/echo_contributor", echoHandlerContributor).Methods("POST")
 	r.HandleFunc("/api/text/{directory}/{filename}", HandleTextFileRequest).Methods("GET")
-	r.HandleFunc("/api/epub/{directory}", HandleTextFileRequest).Methods("GET")
+	r.HandleFunc("/api/epub/{directory}", HandleEpubFileRequest).Methods("GET")
 
 	// file-related handlers
 	r.HandleFunc("/api/catalogs", GetCatalogsHandler).Methods("GET")

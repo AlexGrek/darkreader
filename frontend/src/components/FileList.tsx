@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Catalog, CatalogMap, getFileList } from '../utils/api';
+import { Catalog, CatalogMap, getEpubFile, getFileList } from '../utils/api';
 import './FileList.css'
 import { HiOutlineLockClosed } from "react-icons/hi2";
 import { RxFileText } from "react-icons/rx";
@@ -35,7 +35,6 @@ const FileList: React.FC<FileListProps> = ({appendMode}) => {
     });
   }
 
-
   const renderEntry = (key: string, catalog: Catalog) => {
     const lock = catalog.protected ? <span className='file-entry-lock'><HiOutlineLockClosed /></span> : null;
     const edit = !appendMode ? null : <Link to={`/append/${key}`}>  <BsFileEarmarkPlus /></Link>;
@@ -64,6 +63,7 @@ const FileList: React.FC<FileListProps> = ({appendMode}) => {
   return (
     <div>
       {renderEntries()}
+      <p/>
     </div>
   );
 };

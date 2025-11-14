@@ -35,6 +35,33 @@ export const getCatalog = async (catalog: string) => {
   }
 };
 
+export const getEpubFile = async (name: string) => {
+  try {
+    const response = await fetch(`/api/epub/${name}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}.epub`; // or extract filename from response.headers
+    document.body.appendChild(a);
+    a.click();
+
+    // Cleanup
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading EPUB:", error);
+    throw error;
+  }
+};
+
+
 export const sendPostWithPayload = async (path: string, payload: any) => {
   try {
     const response = await axios.post(`/api/${path}`, payload, {
