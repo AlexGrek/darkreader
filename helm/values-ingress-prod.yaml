@@ -5,7 +5,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
-  host: darkreader.alexgr.space
+  host: darkreader.dcommunity.space
   tls:
     enabled: true
     secretName: darkreader-tls
