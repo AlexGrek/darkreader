@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -15,11 +16,11 @@ func GetCatalogsHandler(w http.ResponseWriter, r *http.Request) {
 
 	includeHidden, includeUnpubliched := false, false
 
-	if (level >= AuthLevelAsNumeric(ACCESS_READER)) {
+	if level >= AuthLevelAsNumeric(ACCESS_READER) {
 		// logged in at least
 		includeHidden = true
 	}
-	if (level >= AuthLevelAsNumeric(ACCESS_MASTER)) {
+	if level >= AuthLevelAsNumeric(ACCESS_MASTER) {
 		// only master level access
 		includeUnpubliched = true
 	}
@@ -70,6 +71,55 @@ func HandleTextFileRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(fileContents)
 }
+func HandleEpubFileRequest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	directory := vars["directory"]
+
+	rootPath := os.Getenv("TEXT_PATH")
+	if rootPath == "" {
+		rootPath = "demotexts"
+	}
+	filePath := fmt.Sprintf("%s/%s", rootPath, directory)
+
+	_, catalog := TextHierarchyOneDir(directory)
+	if catalog.Protected && !checkLoggedIn(w, r, ACCESS_READER) {
+		return
+	}
+
+	outputPath := filepath.Join(filePath, "_generated")
+	if err := os.MkdirAll(outputPath, 0o755); err != nil {
+		http.Error(w, "mkdir failed", http.StatusInternalServerError)
+		return
+	}
+
+	txtFiles, err := ListTxtFilesSorted(filePath)
+	if err != nil {
+		http.Error(w, "failed to list files", http.StatusInternalServerError)
+		return
+	}
+
+	epubPath, _, err := GenerateEPUB(txtFiles, directory, outputPath)
+	if err != nil {
+		http.Error(w, "failed to generate epub", http.StatusInternalServerError)
+		return
+	}
+
+	f, err := os.Open(epubPath)
+	if err != nil {
+		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+	defer f.Close()
+
+	stat, _ := f.Stat()
+
+	w.Header().Set("Content-Type", "application/epub+zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`inline; filename="%s"`, filepath.Base(epubPath)))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+	w.WriteHeader(http.StatusOK)
+
+	io.Copy(w, f)
+}
 
 type AppendPayload struct {
 	Catalog string `json:"catalog"`
@@ -90,14 +140,13 @@ type DeleteTextPayload struct {
 }
 
 type UpdateMetadataPayload struct {
-	Catalog string `json:"catalog"`
+	Catalog     string   `json:"catalog"`
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
 	Protected   bool     `json:"protected"`
 	Hidden      bool     `json:"hidden"`
 	Unpublished bool     `json:"unpublished"`
 }
-
 
 type CreatePayload struct {
 	Catalog     string   `json:"catalog"`
@@ -201,7 +250,6 @@ func HandleEditMetadata(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Metadata changed"))
 }
 
-
 func HandleEditText(w http.ResponseWriter, r *http.Request) {
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
@@ -262,5 +310,3 @@ func HandleAppend(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Catalog and file created successfully"))
 }
-
-

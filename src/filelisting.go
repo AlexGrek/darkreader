@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -26,6 +27,23 @@ type Metadata struct {
 	Protected   bool     `json:"protected"`
 	Hidden      bool     `json:"hidden"`
 	Unpublished bool     `json:"unpublished"`
+}
+
+func ListTxtFilesSorted(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var files []string
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".txt") {
+			files = append(files, filepath.Join(dir, e.Name()))
+		}
+	}
+
+	sort.Strings(files)
+	return files, nil
 }
 
 func GenerateHierarchy(rootPath string, includeUnpublished bool, includeHidden bool) (map[string]Catalog, error) {
@@ -218,9 +236,9 @@ func AddFileToCatalog(catalogInfo AppendPayload) error {
 // add os.Getenv("TEXT_PATH") as prefix
 func catalogPath(catalogName string) string {
 	// Check if catalogName contains ".." or "/", sEcUrItY
-    if strings.Contains(catalogName, "..") || strings.Contains(catalogName, "/") || strings.Contains(catalogName, "\\") {
-        return "fallback_default_catalog"
-    }
+	if strings.Contains(catalogName, "..") || strings.Contains(catalogName, "/") || strings.Contains(catalogName, "\\") {
+		return "fallback_default_catalog"
+	}
 	rootPath := os.Getenv("TEXT_PATH")
 	if rootPath == "" {
 		rootPath = "demotexts"
