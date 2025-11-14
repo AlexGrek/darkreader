@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Catalog, CatalogMap, getEpubFile, getFileList } from '../utils/api';
+import { Catalog, CatalogMap, getFileList } from '../utils/api';
 import './FileList.css'
 import { HiOutlineLockClosed } from "react-icons/hi2";
 import { RxFileText } from "react-icons/rx";
@@ -53,7 +53,7 @@ const FileList: React.FC<FileListProps> = ({appendMode}) => {
   }
 
   const renderEntries = () => {
-    let items: ReactNode[] = []
+    const items: ReactNode[] = []
     for (const [key, catalog] of Object.entries(files)) {
       items.push(renderEntry(key, catalog))
     }
