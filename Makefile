@@ -1,16 +1,17 @@
 .PHONY: docker-build docker-push all deploy-service redeploy
 
 NAME?=darkreader
-IMAGE_NAME?=localhost:5000/$(NAME)
+GIT_HASH?=$(shell git rev-parse --short HEAD)
+IMAGE_NAME?=grekodocker/$(NAME):$(GIT_HASH)
 NAMESPACE?=default
 
 docker-build:
-	docker build . -t $(IMAGE_NAME)
+	docker buildx build --platform linux/arm64,linux/amd64 -t $(IMAGE_NAME) --push .
 
 docker-push:
-	docker push $(IMAGE_NAME)
+	@echo "Push is included in docker-build step"
 
-all: docker-build docker-push
+all: docker-build
 
 redeploy: all
 	kubectl delete pod -n $(NAMESPACE) -l app=darkreader
