@@ -66,32 +66,28 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}-ingress
-  labels:
-    app: {{ .Chart.Name }}
-  {{- with .Values.ingress.annotations }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: traefik
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
 spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className }}
-  {{- end }}
-  rules:
-  - host: {{ .Values.ingress.host | quote }}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Chart.Name }}
-            port:
-              number: {{ .Values.service.port }}
-  {{- if .Values.ingress.tls.enabled }}
+  ingressClassName: traefik
   tls:
-  - hosts:
-    - {{ .Values.ingress.host | quote }}
-    secretName: {{ .Values.ingress.tls.secretName }}
-  {{- end }}
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Chart.Name }}
+                port:
+                  number: {{ .Values.service.port }}
 {{- end }}

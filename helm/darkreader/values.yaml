@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: localhost:5000/darkreader
+  repository: grekodocker/darkreader
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 service:
   type: ClusterIP
@@ -32,12 +32,7 @@ storage:
 terminationGracePeriodSeconds: 2
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # cert-manager.io/cluster-issuer: letsencrypt-prod
-    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  host: darkreader.example.com
+  enabled: true
+  host: dr.alexgr.space
   tls:
-    enabled: false
-    secretName: darkreader-tls
+    secretName: dr-alexgr-space-tls
