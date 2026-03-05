@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-backup-storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  {{- if .Values.backup.storageClass }}
+  storageClassName: {{ .Values.backup.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.backup.size }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Chart.Name }}-backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  # Prevent overlapping runs — a stale backup job must not start a second one
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: busybox:1.36
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+              BACKUP_FILE="/backup/darkreader-${TIMESTAMP}.tar.gz"
+              echo "==> Starting backup: ${BACKUP_FILE}"
+              tar -czf "${BACKUP_FILE}" -C /data .
+              echo "==> Backup complete. Size: $(du -sh ${BACKUP_FILE} | cut -f1)"
+
+              # Prune old archives, keep the N most recent
+              KEEP={{ .Values.backup.retainCount }}
+              EXCESS=$(ls -t /backup/darkreader-*.tar.gz 2>/dev/null | tail -n +$((KEEP + 1)))
+              if [ -n "${EXCESS}" ]; then
+                echo "==> Pruning old backups:"
+                echo "${EXCESS}"
+                echo "${EXCESS}" | xargs rm -f
+              fi
+
+              echo "==> Retained backups:"
+              ls -lh /backup/darkreader-*.tar.gz
+            volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: true
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              # StatefulSet PVC name follows the pattern:
+              # {volumeClaimTemplate.name}-{statefulSetName}-{ordinal}
+              claimName: darkreader-storage-{{ .Chart.Name }}-0
+              readOnly: true
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: {{ .Chart.Name }}-backup-storage

@@ -26,8 +26,15 @@ env:
   textPath: "/app/data/texts"
 
 storage:
-  hostPath: /etc/darkreader-data
   mountPath: /app/data
+  # storageClass: ""   # leave unset to use the cluster default StorageClass
+  size: 1Gi
+
+backup:
+  schedule: "0 0 * * 0"  # every Sunday at midnight
+  # storageClass: ""      # leave unset to use the cluster default StorageClass
+  size: 1Gi
+  retainCount: 8          # keep 8 weekly snapshots (~2 months)
 
 terminationGracePeriodSeconds: 2
 

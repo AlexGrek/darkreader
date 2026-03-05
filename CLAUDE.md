@@ -96,32 +96,42 @@ Example: `TEXT_PATH=./stories MASTER_PASSWORDS_FILE=./pwd.json go run ./src`
 
 ## Deployment
 
-### Docker
+### Docker Multi-Architecture Build
+
+The Docker image is built for both ARM64 and x86-64 architectures and pushed to the `grekodocker/darkreader` registry with a git commit hash tag:
 
 ```bash
-# Build Docker image
+# Build and push multi-arch image with git hash tag
 make docker-build
-
-# Push to registry
-make docker-push
-
-# Deploy to Kubernetes cluster
-make deploy-service
-
-# Redeploy (restart pods)
-make redeploy
 ```
 
-The Docker image includes a multi-stage build: Go backend binary + prebuilt React frontend.
+The image tag is automatically set to the short git commit hash (e.g., `gregodocker/darkreader:a1b2c3d`).
 
-### Production Build
+### Kubernetes Deployment with Helm
 
-For Windows:
-1. Install .NET 6 SDK (required version, not latest)
-2. Install FAKE: `dotnet tool install fake-cli -g`
-3. Run: `fake run .\fakefile.fsx`
+The application is deployed to Kubernetes using Helm charts. Prerequisites:
+- Kubernetes cluster
+- Helm 3+
+- cert-manager (for Let's Encrypt TLS)
+- Traefik ingress controller
 
-This generates a release package including built backend binary and frontend assets.
+**Initial deployment:**
+```bash
+make helm-deploy
+```
+
+**Upgrade existing deployment:**
+```bash
+make docker-build          # Build and push new image
+make helm-upgrade          # Update Helm release with new image tag
+```
+
+Makefile targets:
+- `docker-build`: Build and push multi-arch image (ARM64 + x86-64) to `grekodocker/darkreader`
+- `helm-deploy`: Install Helm release with current git hash tag
+- `helm-upgrade`: Upgrade existing Helm release with current git hash tag
+
+The chart is located in `helm/darkreader/` and can be customized via `helm/darkreader/values.yaml`.
 
 ## API Routes
 
@@ -165,20 +175,25 @@ All API endpoints require authentication (via session cookie) except `/api/login
 
 ```
 darkreader/
-├── src/                 # Go backend source
-│   ├── session/         # Session validation
-│   ├── utils/           # Go utilities
-│   └── *.go             # Core handlers and logic
-├── frontend/            # React + TypeScript app
+├── src/                       # Go backend source
+│   ├── session/               # Session validation
+│   ├── utils/                 # Go utilities
+│   └── *.go                   # Core handlers and logic
+├── frontend/                  # React + TypeScript app
 │   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── utils/       # Utility functions
-│   │   ├── App.tsx      # Router setup
-│   │   └── main.tsx     # Entry point
-│   ├── package.json     # Dependencies and scripts
-│   └── tsconfig.json    # TypeScript config
-├── Makefile             # Build/deploy targets
-├── Dockerfile           # Multi-stage container build
-├── go.mod, go.sum       # Go dependencies
-└── README.md            # User-facing documentation
+│   │   ├── components/        # React components
+│   │   ├── utils/             # Utility functions
+│   │   ├── App.tsx            # Router setup
+│   │   └── main.tsx           # Entry point
+│   ├── package.json           # Dependencies and scripts
+│   └── tsconfig.json          # TypeScript config
+├── helm/
+│   └── darkreader/            # Kubernetes Helm chart
+│       ├── Chart.yaml         # Chart metadata
+│       ├── values.yaml        # Default values
+│       └── templates/         # Kubernetes manifests
+├── Makefile                   # Build/deploy targets
+├── Dockerfile                 # Multi-stage container build
+├── go.mod, go.sum             # Go dependencies
+└── README.md                  # User-facing documentation
 ```
